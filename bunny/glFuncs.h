@@ -1,12 +1,17 @@
 # include <iostream>
 # include <math.h>
 
+# include "Vector.h"
+# include "Camera.h"
+
 using namespace std;
 
 
 GLfloat *vertices;
 GLuint *faces;
 int vertex_count, face_count;
+Camera myCamera;
+static int xOrigin = -1;
 
 
 /*
@@ -97,16 +102,29 @@ void handleKey(unsigned char key, int x, int y)
 }
 
 
-/*
+void mouseButton(int button, int state, int x, int y)
+{
+  // mouse left click
+  if (button == GLUT_LEFT_BUTTON)
+  {
+    // mouse left button is released
+    if (state == GLUT_UP) {xOrigin = -1;}
+    else {xOrigin = x;}
+  }
+}
+
+
 void mouseMove(int x, int y)
-{ 	
+{
+  if (xOrigin >= 0)
+  { 	
 	// this will only be true when the left button is down
 	// update deltaAngle
-	double deltaAngle = x * 0.001f;
-
+	double deltaAngle = (x - xOrigin) * 0.01f;
+  // cout << xOrigin << " " << x << " " << deltaAngle << endl;
 	// update camera's direction
-	lx = sin(angle + deltaAngle);
-	lz = -cos(angle + deltaAngle);
+	myCamera.rotation(-deltaAngle, Vector(0.0, 1.0, 0.0));
+  // cout << myCamera.getEye().X() << " " << myCamera.getEye().Y() << " " << myCamera.getEye().Z() << endl;
+  }
 }
-*/
 

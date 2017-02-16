@@ -19,7 +19,6 @@ extern GLfloat *vertices;
 extern GLuint *faces;
 extern int vertex_count, face_count;
 extern Camera myCamera;
-Camera myCamera;
 
 
 void setup_viewvolume(Vector& eye, Vector& view, Vector& up)
@@ -37,6 +36,8 @@ void setup_viewvolume(Vector& eye, Vector& view, Vector& up)
 
 void display()
 {
+  setup_viewvolume(myCamera.getEye(), myCamera.getView(), myCamera.getUp());
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 6 * sizeof(GLfloat), vertices);
@@ -68,16 +69,12 @@ int main(int argc, char *argv[])
 
 	initGL(argc,argv);
 
-	// Vector eye(0.5, 0.5, 0.5);
-	// Vector view(0.0, 0.0, 0.0);
-	// Vector up(0.0, 1.0, 0.0);
-	setup_viewvolume(myCamera.eye(), myCamera.view(), myCamera.up());
-
 	// set up the callback routines to be called when glutMainLoop() detects an event
-	glutDisplayFunc(display);
+  glutDisplayFunc(display);
+  glutIdleFunc(display);
 	glutKeyboardFunc(handleKey);	// keyboard callback
-	// glutMouseFunc(mouseButton);
-	// glutMotionFunc(mouseMove);
+	glutMouseFunc(mouseButton); // mouse click callback
+	glutMotionFunc(mouseMove);  // mouse movement callback
 
 	glutMainLoop();
 
