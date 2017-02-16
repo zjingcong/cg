@@ -11,7 +11,9 @@ GLfloat *vertices;
 GLuint *faces;
 int vertex_count, face_count;
 Camera myCamera;
-static int xOrigin = -1;
+
+static Vector origin(-1.0, -1.0, 0.0);
+static int mouse_button = 0; // 0: no button, 1: left button
 
 
 /*
@@ -108,23 +110,46 @@ void mouseButton(int button, int state, int x, int y)
   if (button == GLUT_LEFT_BUTTON)
   {
     // mouse left button is released
-    if (state == GLUT_UP) {xOrigin = -1;}
-    else {xOrigin = x;}
+    if (state == GLUT_UP) {mouse_button = 0;}
+    else {mouse_button = 1; origin = Vector(x, y, 0);}
   }
 }
 
 
 void mouseMove(int x, int y)
 {
-  if (xOrigin >= 0)
-  { 	
-	// this will only be true when the left button is down
-	// update deltaAngle
-	double deltaAngle = (x - xOrigin) * 0.01f;
-  // cout << xOrigin << " " << x << " " << deltaAngle << endl;
-	// update camera's direction
-	myCamera.rotation(-deltaAngle, Vector(0.0, 1.0, 0.0));
-  // cout << myCamera.getEye().X() << " " << myCamera.getEye().Y() << " " << myCamera.getEye().Z() << endl;
+  switch (mouse_button)
+  {
+    case 0:
+      break;
+
+    case 1:
+    {
+      Vector vu, vv;
+
+      // get deltaAngle
+      Vector xy(x, y, 0);
+      Vector delta_v = xy - origin;
+	    double deltaAngle = delta_v.magnitude() * 0.01f;
+      // get rotation axis
+      Vector view_dir = myCamera.getView() - myCamera.getEye();
+      if (view_dir.X() == 0 && view_dir.Z() == 0)
+      {
+      Vector vy = Vector(0.0, 1.0, 0.0);
+      vu = (view_dir ^ vy).unitvector();
+      vv = (vu ^ view_dir).unitvector();
+      }
+      else  {vu = Vector(1.0, 0.0, 0.0); vv = Vector(0.0, 0.0, -1.0);}
+      Vector axis = delta_v.Y() * vu - delta_v.X() * vv;
+      // cout << view_dir.X() << " " << view_dir.Y() << " " << view_dir.Z() << endl;
+      // if (abs(view_dir.X()) <= 0.02f && abs(view_dir.Z()) <= 0.02f) {axis = Vector(1.0, 0.0, 0.0);}
+	    // update camera's direction
+	    myCamera.rotation(deltaAngle, axis);
+
+      break;
+    }
+    default:
+      return;
   }
 }
 
