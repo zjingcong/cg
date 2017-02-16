@@ -6,14 +6,18 @@
 
 using namespace std;
 
+# define GLUT_WHEEL_UP 3
+# define GLUT_WHEEL_DOWN 4
+# define ZOOM	0.08
+
 
 GLfloat *vertices;
 GLuint *faces;
 int vertex_count, face_count;
 Camera myCamera;
 
-static Vector origin(-1.0, -1.0, 0.0);
 static int mouse_button = 0; // 0: no button, 1: left button
+static Vector origin;	// mouse controlled rotation
 
 
 /*
@@ -106,13 +110,24 @@ void handleKey(unsigned char key, int x, int y)
 
 void mouseButton(int button, int state, int x, int y)
 {
-  // mouse left click
+  // mouse left click to rotate
   if (button == GLUT_LEFT_BUTTON)
   {
     // mouse left button is released
     if (state == GLUT_UP) {mouse_button = 0;}
     else {mouse_button = 1; origin = Vector(x, y, 0);}
   }
+	// mouse scrollwheel zoom in/out
+	if (state == GLUT_UP && button == GLUT_WHEEL_UP)
+	{
+		myCamera.zoom(ZOOM);
+		glutPostRedisplay();
+	}
+	else if (state == GLUT_UP && button == GLUT_WHEEL_DOWN)
+	{
+		myCamera.zoom(-ZOOM);
+		glutPostRedisplay();
+	}
 }
 
 
@@ -131,14 +146,15 @@ void mouseMove(int x, int y)
 	    double deltaAngle = delta_v.magnitude() * 0.01f;
       // get rotation axis
       Vector my_view_dir = myCamera.getViewDir();
-			Vector vu = (my_view_dir ^ myCamera.getUp()).unitvector();
 			Vector right = myCamera.getRight();
 			Vector axis = -delta_v.Y() * myCamera.getRight() - delta_v.X() * myCamera.getUp();
 	    // update camera's direction
 	    myCamera.rotation(deltaAngle, axis);
+			glutPostRedisplay();
 
       break;
     }
+
     default:
       return;
   }

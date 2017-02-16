@@ -26,7 +26,7 @@ void setup_viewvolume(Vector& eye, Vector& view, Vector& up)
 	// struct point eye, view, up;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, 1.0, 0.1, 20.0);	// fov, aspect, near, far
+	gluPerspective(60.0, 1.0, 0.01, 20.0);	// fov, aspect, near, far
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -67,20 +67,13 @@ int main(int argc, char *argv[])
 	// load bunny model
 	load_ply("bunnyN.ply");
 
-	glutInit(&argc,argv);
-	glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH);
-	glutInitWindowSize(768, 768);
-	glutInitWindowPosition(100, 50);
-	glutCreateWindow("My Bunny");
-	glClearColor(0.35,0.35,0.35,0.0);
-	// OpenGL init
-	glEnable(GL_DEPTH_TEST);
+	initGL(argc, argv);
 
 	// set up the callback routines to be called when glutMainLoop() detects an event
-  glutDisplayFunc(display);
-  glutIdleFunc(display);
+	glutDisplayFunc(display);
+	// glutIdleFunc(display);
 	glutKeyboardFunc(handleKey);	// keyboard callback
-	glutMouseFunc(mouseButton); // mouse click callback
+	glutMouseFunc(mouseButton); // mouse click and mouse scrollwheel callback
 	glutMotionFunc(mouseMove);  // mouse movement callback
 
 	glutMainLoop();
