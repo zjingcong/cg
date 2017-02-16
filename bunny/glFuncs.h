@@ -133,16 +133,11 @@ void mouseMove(int x, int y)
 	    double deltaAngle = delta_v.magnitude() * 0.01f;
       // get rotation axis
       Vector view_dir = myCamera.getView() - myCamera.getEye();
-      if (view_dir.X() == 0 && view_dir.Z() == 0)
-      {
-      Vector vy = Vector(0.0, 1.0, 0.0);
-      vu = (view_dir ^ vy).unitvector();
-      vv = (vu ^ view_dir).unitvector();
-      }
-      else  {vu = Vector(1.0, 0.0, 0.0); vv = Vector(0.0, 0.0, -1.0);}
-      Vector axis = delta_v.Y() * vu - delta_v.X() * vv;
-      // cout << view_dir.X() << " " << view_dir.Y() << " " << view_dir.Z() << endl;
-      // if (abs(view_dir.X()) <= 0.02f && abs(view_dir.Z()) <= 0.02f) {axis = Vector(1.0, 0.0, 0.0);}
+      Vector vy(0.0, 1.0, 0.0);
+      // vu = (view_dir ^ vy).unitvector();
+      // vv = (vu ^ view_dir).unitvector();
+      vu = (view_dir ^ myCamera.getUp()).unitvector();
+      Vector axis = delta_v.Y() * vu + delta_v.X() * myCamera.getUp();
 	    // update camera's direction
 	    myCamera.rotation(deltaAngle, axis);
 

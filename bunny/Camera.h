@@ -17,6 +17,7 @@ class Camera
 		Vector& getEye()  {return eye;}
     Vector& getView() {return view;}
     Vector& getUp()   {return up;}
+    Vector& getCameraUp()   {return camera_up;}
 
 		void rotation(double theta, Vector axis);
 		void zoom()	{}
@@ -26,6 +27,7 @@ class Camera
 		Vector eye;	// position of camera
 		Vector view;	// center
 		Vector up;	// up
+    Vector camera_up; // default (0, 1, 0)
 
 		// theta in degree
 		// axis should be unit vector
@@ -41,7 +43,12 @@ class Camera
 
 Camera::Camera()
 {
-	setEyeViewUp(Vector(1.0, 1.0, 1.0), Vector(0.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0));
+  camera_up = Vector(0.0, 1.0, 0.0);
+  Vector position(1.0, 1.0, 1.0);
+  Vector center(0.0, 0.0, 0.0);
+  Vector view_dir = center - position;
+  Vector up_vector = (view_dir ^ camera_up).unitvector();
+	setEyeViewUp(position, center, up_vector);
 }
 
 void Camera::setEyeViewUp(const Vector& position, const Vector& center, const Vector& up_vector)
@@ -56,7 +63,8 @@ void Camera::rotation(double theta, Vector axis)
 {
 	Vector rotation_axis = axis.unitvector();
 	Vector eye_new = vecRotation(eye, rotation_axis, theta);
-	setEyeViewUp(eye_new, view, up);
+  Vector up_new = vecRotation(up, rotation_axis, theta);
+	setEyeViewUp(eye_new, view, up_new);
 }
 
 #endif
