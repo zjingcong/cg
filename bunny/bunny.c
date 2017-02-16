@@ -67,7 +67,14 @@ int main(int argc, char *argv[])
 	// load bunny model
 	load_ply("bunnyN.ply");
 
-	initGL(argc,argv);
+	glutInit(&argc,argv);
+	glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH);
+	glutInitWindowSize(768, 768);
+	glutInitWindowPosition(100, 50);
+	glutCreateWindow("My Bunny");
+	glClearColor(0.35,0.35,0.35,0.0);
+	// OpenGL init
+	glEnable(GL_DEPTH_TEST);
 
 	// set up the callback routines to be called when glutMainLoop() detects an event
   glutDisplayFunc(display);

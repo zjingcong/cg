@@ -3,8 +3,11 @@
 
 # include "math.h"
 # include <cmath>
+# include <iostream>
 
 # include "Vector.h"
+
+using namespace std;
 
 
 class Camera
@@ -17,7 +20,8 @@ class Camera
 		Vector& getEye()  {return eye;}
     Vector& getView() {return view;}
     Vector& getUp()   {return up;}
-    Vector& getCameraUp()   {return camera_up;}
+		Vector& getViewDir()	{return view_dir;}
+		Vector& getRight()	{return right;}
 
 		void rotation(double theta, Vector axis);
 		void zoom()	{}
@@ -27,8 +31,10 @@ class Camera
 		Vector eye;	// position of camera
 		Vector view;	// center
 		Vector up;	// up
-    Vector camera_up; // default (0, 1, 0)
+		Vector right;	// right vector
+		Vector view_dir;	// view direction to center
 
+    Vector camera_up; // default (0, 1, 0)
 		// theta in degree
 		// axis should be unit vector
 		Vector vecRotation(Vector vv, Vector axis, float a)
@@ -44,11 +50,13 @@ class Camera
 Camera::Camera()
 {
   camera_up = Vector(0.0, 1.0, 0.0);
-  Vector position(1.0, 1.0, 1.0);
-  Vector center(0.0, 0.0, 0.0);
-  Vector view_dir = center - position;
-  Vector up_vector = (view_dir ^ camera_up).unitvector();
-	setEyeViewUp(position, center, up_vector);
+  eye = Vector(1.0, 1.0, 1.0);
+  view = Vector(0.0, 0.0, 0.0);
+  view_dir = (view - eye).unitvector();
+	right = (view_dir ^ camera_up).unitvector();
+	cout << right.X() << " " << right.Y() << " " << right.Z() << endl;
+  up = (right ^ view_dir).unitvector();
+	cout << up.X() << " " << up.Y() << " " << up.Z() << endl;
 }
 
 void Camera::setEyeViewUp(const Vector& position, const Vector& center, const Vector& up_vector)
@@ -56,6 +64,8 @@ void Camera::setEyeViewUp(const Vector& position, const Vector& center, const Ve
 	eye = position;
 	view = center;
 	up = up_vector;
+	view_dir = (view - eye).unitvector();
+	right = (view_dir ^ up).unitvector();
 }
 
 // theta in degree

@@ -125,19 +125,15 @@ void mouseMove(int x, int y)
 
     case 1:
     {
-      Vector vu, vv;
-
       // get deltaAngle
       Vector xy(x, y, 0);
       Vector delta_v = xy - origin;
 	    double deltaAngle = delta_v.magnitude() * 0.01f;
       // get rotation axis
-      Vector view_dir = myCamera.getView() - myCamera.getEye();
-      Vector vy(0.0, 1.0, 0.0);
-      // vu = (view_dir ^ vy).unitvector();
-      // vv = (vu ^ view_dir).unitvector();
-      vu = (view_dir ^ myCamera.getUp()).unitvector();
-      Vector axis = delta_v.Y() * vu + delta_v.X() * myCamera.getUp();
+      Vector my_view_dir = myCamera.getViewDir();
+			Vector vu = (my_view_dir ^ myCamera.getUp()).unitvector();
+			Vector right = myCamera.getRight();
+			Vector axis = -delta_v.Y() * myCamera.getRight() - delta_v.X() * myCamera.getUp();
 	    // update camera's direction
 	    myCamera.rotation(deltaAngle, axis);
 
