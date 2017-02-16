@@ -9,34 +9,29 @@
 # include <iostream>
 
 # include "glFuncs.h"
+# include "Vector.h"
+# include "Camera.h"
 
 using namespace std;
-
-
-struct point
-{
-	float x, y, z;
-};
 
 
 extern GLfloat *vertices;
 extern GLuint *faces;
 extern int vertex_count, face_count;
+extern Camera myCamera;
+Camera myCamera;
 
 
-void setup_viewvolume()
+void setup_viewvolume(Vector& eye, Vector& view, Vector& up)
 {
-	struct point eye, view, up;
+	// struct point eye, view, up;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(60.0, 1.0, 0.1, 20.0);	// fov, aspect, near, far
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	eye.x = 1.0; eye.y = 1.0; eye.z = 1.0;
-	view.x = 0.0; view.y = 0.0; view.z = 0.0;
-	up.x = 0.0; up.y = 1.0; up.z = 0.0;
-	gluLookAt(eye.x,eye.y,eye.z,view.x,view.y,view.z,up.x,up.y,up.z);
+	gluLookAt(eye.X(),eye.Y(),eye.Z(),view.X(),view.Y(),view.Z(),up.X(),up.Y(),up.Z());
 }
 
 
@@ -48,8 +43,21 @@ void display()
 	glColorPointer(3, GL_FLOAT, 6 * sizeof(GLfloat), &vertices[3]);
 
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	glDrawElements(GL_TRIANGLES, 3 * face_count, GL_UNSIGNED_INT,&faces[1]);
+	glDrawElements(GL_TRIANGLES, 3 * face_count, GL_UNSIGNED_INT, faces);
 	glFlush();
+}
+
+
+void initGL(int argc, char *argv[])
+{
+	glutInit(&argc,argv);
+	glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH);
+	glutInitWindowSize(768, 768);
+	glutInitWindowPosition(100, 50);
+	glutCreateWindow("My Bunny");
+	glClearColor(0.35,0.35,0.35,0.0);
+	// OpenGL init
+	glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -58,21 +66,20 @@ int main(int argc, char *argv[])
 	// load bunny model
 	load_ply("bunnyN.ply");
 
-	glutInit(&argc,argv);
-	glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH);
-	glutInitWindowSize(768,768);
-	glutInitWindowPosition(100,50);
-	glutCreateWindow("My Bunny");
-	glClearColor(0.35,0.35,0.35,0.0);
-	glEnable(GL_DEPTH_TEST);
+	initGL(argc,argv);
 
-	setup_viewvolume();
+	// Vector eye(0.5, 0.5, 0.5);
+	// Vector view(0.0, 0.0, 0.0);
+	// Vector up(0.0, 1.0, 0.0);
+	setup_viewvolume(myCamera.eye(), myCamera.view(), myCamera.up());
 
 	// set up the callback routines to be called when glutMainLoop() detects an event
 	glutDisplayFunc(display);
 	glutKeyboardFunc(handleKey);	// keyboard callback
+	// glutMouseFunc(mouseButton);
+	// glutMotionFunc(mouseMove);
 
-	glutMainLoop();	
+	glutMainLoop();
 
 	return 0;
 }

@@ -1,12 +1,17 @@
 # include <iostream>
+# include <math.h>
 
 using namespace std;
+
 
 GLfloat *vertices;
 GLuint *faces;
 int vertex_count, face_count;
 
 
+/*
+.ply file parser to load ply model
+*/
 void load_ply(const char *file_name)
 {
 	cout << "Load model " << file_name << "..." << endl;
@@ -90,4 +95,18 @@ void handleKey(unsigned char key, int x, int y)
 			return;
   }
 }
+
+
+/*
+void mouseMove(int x, int y)
+{ 	
+	// this will only be true when the left button is down
+	// update deltaAngle
+	double deltaAngle = x * 0.001f;
+
+	// update camera's direction
+	lx = sin(angle + deltaAngle);
+	lz = -cos(angle + deltaAngle);
+}
+*/
 
