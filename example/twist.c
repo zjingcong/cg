@@ -124,6 +124,7 @@ glutMainLoop();
 return 0;
 }
 
+/*
 // ............................................................
 // twist.vert
 
@@ -151,5 +152,5 @@ void main()
 {
 gl_FragColor = gl_Color;
 }
-
+*/
 

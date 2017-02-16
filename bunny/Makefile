@@ -1,6 +1,6 @@
 C	= c
 
-LINKS =  `Magick++-config  --cppflags --cxxflags --ldflags --libs` -L/usr/local/lib -lOpenImageIO -lX11 -lGL -lGLU -lglut -lm -lXmu -lXi
+LINKS =  `Magick++-config  --cppflags --cxxflags --ldflags --libs` -L/usr/local/lib -lOpenImageIO -lX11 -lGL -lGLEW -lGLU -lglut -lm -lXmu -lXi
 
 INCLUDES = -I ./ `Magick++-config  --cppflags --cxxflags`
 

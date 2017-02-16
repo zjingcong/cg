@@ -4,7 +4,11 @@
 // eye coordinates, you have to set the ModelView matrix to the final view
 // BEFORE you call glLightfv().  
 //
+
+// to compile: g++ -I/usr/include -I/usr/X11R6/include -L/usr/lib -L/usr/X11R6/lib -O2 phongEC.c -lX11 -lGL -lGLU -lglut -lm -lXmu -lXi -o phongEC
+
 #include <GL/gl.h>
+#include <GL/gl3.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <GL/glx.h>
@@ -124,53 +128,4 @@ glutKeyboardFunc(getout);
 glutMainLoop();
 return 0;
 }
-
-// ................................................................
-// phongEC.vert
-
-// To do the lighting in eye coordinates, apply gl_ModelViewMatrix to
-// gl_Vertex and apply gl_NormalMatrix to gl_Normal. gl_NormalMatrix is 
-// the inverse transpose of the upper 3x3 corner of gl_ModelViewMatrix,
-// which is what's required to rotate the normal into correct (ec) position.
-// If the light positions are specified (in .c code) after the view volume 
-// transformation, then they will be stored in eye coordinates too, and
-// you can access them directly as gl_LightSource[0].position, etc.
-
-// Varying vectors will be interpolated as they're passed to the fragment
-// shader.
-
-varying vec3 ec_vnormal, ec_vposition;
-
-void main()
-{	
-ec_vnormal = gl_NormalMatrix*gl_Normal;
-ec_vposition = gl_ModelViewMatrix*gl_Vertex;
-gl_Position = gl_ProjectionMatrix*gl_ModelViewMatrix*gl_Vertex;
-}
-
-// ................................................................
-// phongEC.frag
-
-// These are set by the .vert code, and they're interpolated.
-varying vec3 ec_vnormal, ec_vposition;
-
-void main()
-{
-vec3 P, N, L, V, H;
-vec4 diffuse_color = gl_FrontMaterial.diffuse; 
-vec4 specular_color = gl_FrontMaterial.specular; 
-float shininess = gl_FrontMaterial.shininess;
-float pi = 3.14159265;
-
-P = ec_vposition;
-N = normalize(ec_vnormal);
-L = normalize(gl_LightSource[0].position - P);
-V = normalize(-P);				// eye position is (0,0,0)!
-H = normalize(L+V);
-		
-diffuse_color *= max(dot(N,L),0.0);
-specular_color *= ((shininess+2.0)/(8.0*pi))*pow(max(dot(H,N),0.0),shininess);
-gl_FragColor = (diffuse_color + specular_color);
-}
-
 

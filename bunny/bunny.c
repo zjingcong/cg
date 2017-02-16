@@ -11,9 +11,11 @@
 # include "glFuncs.h"
 # include "Vector.h"
 # include "Camera.h"
+# include "bunnyScene.h"
 
 using namespace std;
 
+# define WINDOW_SIZE 768
 
 extern GLfloat *vertices;
 extern GLuint *faces;
@@ -53,12 +55,13 @@ void initGL(int argc, char *argv[])
 {
 	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH|GLUT_MULTISAMPLE);
-	glutInitWindowSize(768, 768);
+	glutInitWindowSize(WINDOW_SIZE, WINDOW_SIZE);
 	glutInitWindowPosition(100, 50);
 	glutCreateWindow("My Bunny");
 	glClearColor(0.35,0.35,0.35,0.0);
 	// OpenGL init
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE_ARB);
 }
 
 

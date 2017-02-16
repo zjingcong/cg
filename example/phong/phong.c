@@ -20,16 +20,11 @@
 // after a gluLookAt(), you'll need to do the lighting in eye coordinates, 
 // not world coordinates.
 //
-
-// to compile: gcc -I/usr/include -I/usr/X11R6/include -L/usr/lib -L/usr/X11R6/lib -O2 phong.c -lX11 -lGL -lGLU -lGLEW -lglut -lm -lXmu -lXi -DGL_GLEXT_PROTOTYPES -o phong
-
 #include <GL/gl.h>
-#include <GL/gl3.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <GL/glx.h>
 #include <GL/glext.h>
-#include "GL/glew.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -141,4 +136,51 @@ glutKeyboardFunc(getout);
 glutMainLoop();
 return 0;
 }
+
+/*
+//.....................................................................
+// phong.vert
+
+varying vec3 wc_normal, wc_position;
+
+void main()
+{	
+// Store original (world coordinate) normal and vertex values as "varying"
+// so that they'll be interpolated and passed to fragment progam, where
+// we can use them to compute lighting.
+wc_normal = gl_Normal;
+wc_position = gl_Vertex;
+gl_Position = gl_ProjectionMatrix*gl_ModelViewMatrix*gl_Vertex;
+}
+
+//.....................................................................
+// phong.frag
+
+// Interpolate normals, and then apply lighting per pixel.
+
+// These are set by the .c code.
+uniform vec3 eye_position, light_position;
+
+// These are set by the .vert code, interpolated.
+varying vec3 wc_normal, wc_position;
+
+void main()
+{
+vec3 P, N, L, V, H;
+vec4 diffuse_color = gl_FrontMaterial.diffuse; 
+vec4 specular_color = gl_FrontMaterial.specular; 
+float shininess = gl_FrontMaterial.shininess;
+
+P = wc_position;
+N = normalize(wc_normal);
+L = normalize(light_position - P);
+V = normalize(eye_position - P);
+H = normalize(L+V);
+		
+diffuse_color *= max(dot(N,L),0.0);
+specular_color *= pow(max(dot(H,N),0.0),shininess);
+gl_FragColor = diffuse_color + specular_color; 
+// See the normals:
+// gl_FragColor = vec4(N,1.0); 
+}*/
 
