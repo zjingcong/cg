@@ -17,6 +17,8 @@ class Camera
 		~Camera()	{}
 
 		void setEyeViewUp(const Vector& position, const Vector& center, const Vector& up_vector);
+		double getNear()	{return near;}
+		double getFar()	{return far;}
 		Vector& getEye()  {return eye;}
     Vector& getView() {return view;}
     Vector& getUp()   {return up;}
@@ -26,9 +28,13 @@ class Camera
 		// camera movement
 		void rotation(double theta, Vector axis);
 		void zoom(double distance);
-		void track(double dx, double dy);
+		void track(Vector translate);
+		void reset();
 
 	private:
+		double near;
+		double far;
+
 		Vector eye;	// position of camera
 		Vector view;	// center
 		Vector up;	// up
@@ -51,8 +57,16 @@ class Camera
 
 Camera::Camera()
 {
-  camera_up = Vector(0.0, 1.0, 0.0);
-  eye = Vector(1.0, 1.0, 1.0);
+	near = 0.01;
+	far = 20.0;
+  reset();
+}
+
+
+void Camera::reset()
+{
+	camera_up = Vector(0.0, 1.0, 0.0);
+  eye = Vector(0.5, 0.5, 0.5);
   view = Vector(0.0, 0.0, 0.0);
   view_dir = (view - eye).unitvector();
 	right = (view_dir ^ camera_up).unitvector();
@@ -84,14 +98,19 @@ void Camera::zoom(double distance)
 {
 	Vector eye_view = view - eye;
 	Vector eye_view_new = eye_view - distance * view_dir;
-	Vector eye_new = view - eye_view_new;
-	setEyeViewUp(eye_new, view, up);
+	if (eye_view_new.magnitude() > near)
+	{
+		Vector eye_new = view - eye_view_new;
+		setEyeViewUp(eye_new, view, up);
+	}
 }
 
 
-void Camera::track(double dx, double dy)
+void Camera::track(Vector translate)
 {
-	
+	Vector eye_new = eye + translate;
+	Vector view_new = view + translate;
+	setEyeViewUp(eye_new, view_new, up);
 }
 
 #endif

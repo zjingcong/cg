@@ -26,7 +26,7 @@ void setup_viewvolume(Vector& eye, Vector& view, Vector& up)
 	// struct point eye, view, up;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, 1.0, 0.01, 20.0);	// fov, aspect, near, far
+	gluPerspective(60.0, 1.0, myCamera.getNear(), myCamera.getFar());	// fov, aspect, near, far
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -52,7 +52,7 @@ void display()
 void initGL(int argc, char *argv[])
 {
 	glutInit(&argc,argv);
-	glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH|GLUT_MULTISAMPLE);
 	glutInitWindowSize(768, 768);
 	glutInitWindowPosition(100, 50);
 	glutCreateWindow("My Bunny");

@@ -16,8 +16,9 @@ GLuint *faces;
 int vertex_count, face_count;
 Camera myCamera;
 
-static int mouse_button = 0; // 0: no button, 1: left button
-static Vector origin;	// mouse controlled rotation
+static int mouse_button = 0; // 0: no button, 1: left button, 2: right button
+static Vector left_origin;	// mouse controlled rotation
+static Vector right_origin;	// mouse controlled track
 
 
 /*
@@ -101,6 +102,14 @@ void handleKey(unsigned char key, int x, int y)
 		case 'Q':
 		case 27:		// esc - quit
 			exit(0);
+
+		// press f to focus object
+		case 'f':
+		case 'K':
+			myCamera.reset();
+			glutPostRedisplay();
+
+			break;
 						
 		default:		// not a valid key -- just ignore it
 			return;
@@ -115,8 +124,14 @@ void mouseButton(int button, int state, int x, int y)
   {
     // mouse left button is released
     if (state == GLUT_UP) {mouse_button = 0;}
-    else {mouse_button = 1; origin = Vector(x, y, 0);}
+    else {mouse_button = 1; left_origin = Vector(x, y, 0);}
   }
+	// mouse right click to track
+	if (button == GLUT_RIGHT_BUTTON)
+	{
+		if (state == GLUT_UP)	{mouse_button = 0;}
+		else	{mouse_button = 2; right_origin = Vector(x, y, 0);}
+	}
 	// mouse scrollwheel zoom in/out
 	if (state == GLUT_UP && button == GLUT_WHEEL_UP)
 	{
@@ -138,11 +153,12 @@ void mouseMove(int x, int y)
     case 0:
       break;
 
+		// mouse left click
     case 1:
     {
       // get deltaAngle
       Vector xy(x, y, 0);
-      Vector delta_v = xy - origin;
+      Vector delta_v = xy - left_origin;
 	    double deltaAngle = delta_v.magnitude() * 0.01f;
       // get rotation axis
       Vector my_view_dir = myCamera.getViewDir();
@@ -154,6 +170,18 @@ void mouseMove(int x, int y)
 
       break;
     }
+
+		// mouse right click
+		case 2:
+		{
+			double delta_x = (x - right_origin.X()) * 0.0001f;
+			double delta_y = (y - right_origin.Y()) * 0.0001f;
+			Vector trans = - delta_x * myCamera.getRight() + delta_y * myCamera.getUp();
+			myCamera.track(trans);
+			glutPostRedisplay();
+
+			break;
+		}
 
     default:
       return;
