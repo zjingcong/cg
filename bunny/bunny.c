@@ -39,13 +39,18 @@ void setup_viewvolume(Vector& eye, Vector& view, Vector& up)
 void display()
 {
   setup_viewvolume(myCamera.getEye(), myCamera.getView(), myCamera.getUp());
+	set_lights();
+	set_material();
+	set_shaders();
 
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	// glEnableClientState(GL_COLOR_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 6 * sizeof(GLfloat), vertices);
-	glColorPointer(3, GL_FLOAT, 6 * sizeof(GLfloat), &vertices[3]);
+	glNormalPointer(GL_FLOAT, 6 * sizeof(GLfloat), &vertices[3]);
+	// glColorPointer(3, GL_FLOAT, 6 * sizeof(GLfloat), &vertices[3]);
 
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDrawElements(GL_TRIANGLES, 3 * face_count, GL_UNSIGNED_INT, faces);
 	glFlush();
 }
@@ -54,7 +59,7 @@ void display()
 void initGL(int argc, char *argv[])
 {
 	glutInit(&argc,argv);
-	glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH|GLUT_MULTISAMPLE);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
 	glutInitWindowSize(WINDOW_SIZE, WINDOW_SIZE);
 	glutInitWindowPosition(100, 50);
 	glutCreateWindow("My Bunny");

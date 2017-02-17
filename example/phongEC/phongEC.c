@@ -5,10 +5,9 @@
 // BEFORE you call glLightfv().  
 //
 
-// to compile: g++ -I/usr/include -I/usr/X11R6/include -L/usr/lib -L/usr/X11R6/lib -O2 phongEC.c -lX11 -lGL -lGLU -lglut -lm -lXmu -lXi -o phongEC
+// to compile: g++ -I/usr/include -I/usr/X11R6/include -L/usr/lib -L/usr/X11R6/lib -O2 phongEC.c -lX11 -lGL -lGLU -lGLEW -lglut -lm -lXmu -lXi -DGL_GLEXT_PROTOTYPES -o phongEC
 
 #include <GL/gl.h>
-#include <GL/gl3.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <GL/glx.h>
@@ -17,26 +16,32 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <math.h>
+# include <iostream>
+# include <fstream>
+
+using namespace std;
 
 float eye[] = {3.0,3.0,3.0};
 float viewpt[] = {0.0,0.0,0.0};
 float up[] = {0.0,1.0,0.0};
 float light0_position[] = {3.0,3.0,3.0,1.0};
 
-char *read_shader_program(char *filename) 
+string read_shader_program(const char *filePath)
 {
-FILE *fp;
-char *content = NULL;
-int fd, count;
-fd = open(filename,O_RDONLY);
-count = lseek(fd,0,SEEK_END);
-close(fd);
-content = (char *)calloc(1,(count+1));
-fp = fopen(filename,"r");
-count = fread(content,sizeof(char),count,fp);
-content[count] = '\0';
-fclose(fp);
-return content;
+		string content;
+    ifstream fileStream(filePath, std::ios::in);
+
+    if(!fileStream.is_open()) {
+        cerr << "Could not read file " << filePath << ". File does not exist." << endl;
+        exit(0);
+    }
+    string line = "";
+    while(!fileStream.eof()) {
+        getline(fileStream, line);
+        content.append(line + "\n");
+    }
+		
+		return content;
 }
 
 void set_light()
@@ -76,18 +81,19 @@ glutSwapBuffers();
 unsigned int set_shaders()
 {
 GLint vertCompiled, fragCompiled;
-char *vs, *fs;
+string vs_str, fs_str;
 GLuint v, f, p;
 int result = -1;
 
 v = glCreateShader(GL_VERTEX_SHADER);
 f = glCreateShader(GL_FRAGMENT_SHADER);
-vs = read_shader_program("phongEC.vert");
-fs = read_shader_program("phongEC.frag");
-glShaderSource(v,1,(const char **)&vs,NULL);
-glShaderSource(f,1,(const char **)&fs,NULL);
-free(vs);
-free(fs); 
+vs_str = read_shader_program("phongEC.vert");
+fs_str = read_shader_program("phongEC.frag");
+const char *vs = vs_str.c_str();
+const char *fs = fs_str.c_str();
+glShaderSource(v,1,&vs,NULL);
+glShaderSource(f,1,&fs,NULL);
+
 glCompileShader(v);
 glCompileShader(f);
 glGetShaderiv(f,GL_COMPILE_STATUS,&result);

@@ -1,5 +1,8 @@
+# include <stdio.h>
+# include <stdlib.h>
 # include <iostream>
 # include <math.h>
+# include <fstream>
 
 using namespace std;
 
@@ -78,8 +81,99 @@ void load_ply(const char *file_name)
 }
 
 
-void do_lights()
+string load_shader_file(const char *filePath)
 {
+	string content;
+	ifstream fileStream(filePath, std::ios::in);
+
+	if(!fileStream.is_open())
+	{
+		cerr << "Could not read file " << filePath << ". File does not exist." << endl;
+		exit(0);
+	}
+	string line = "";
+	while(!fileStream.eof())
+	{
+		getline(fileStream, line);
+		content.append(line + "\n");
+	}
 	
+	return content;
+}
+
+
+void set_lights()
+{
+	float light0_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
+	float light0_diffuse[] = { 2.0, 2.0, 2.0, 0.0 }; 
+	float light0_specular[] = { 2.25, 2.25, 2.25, 0.0 }; 
+	float light0_position[] = { 2.0, 2.0, 0.0, 1.0 };
+	float light0_direction[] = { 0.0, 0.0, 0.0, 1.0};
+
+	/*
+	// set scene default ambient 
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,light0_ambient); 
+
+	// make specular correct for spots 
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,1); 
+	glLightfv(GL_LIGHT0,GL_AMBIENT,light0_ambient); 
+	glLightfv(GL_LIGHT0,GL_DIFFUSE,light0_diffuse); 
+	glLightfv(GL_LIGHT0,GL_SPECULAR,light0_specular); 
+	glLightf(GL_LIGHT0,GL_SPOT_EXPONENT,0.1); 
+	glLightf(GL_LIGHT0,GL_SPOT_CUTOFF,180.0); 
+	glLightf(GL_LIGHT0,GL_CONSTANT_ATTENUATION,1.0); 
+	glLightf(GL_LIGHT0,GL_LINEAR_ATTENUATION,0.2); 
+	glLightf(GL_LIGHT0,GL_QUADRATIC_ATTENUATION,0.01); 
+	glLightfv(GL_LIGHT0,GL_POSITION,light0_position);
+	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,light0_direction);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	*/
+	glLightfv(GL_LIGHT0,GL_POSITION,light0_position);
+}
+
+
+void set_material()
+{
+	float mat_ambient[] = {0.0,0.0,0.0,1.0}; 
+	float mat_diffuse[] = {0.9,0.9,0.1,1.0}; 
+	float mat_specular[] = {1.0,1.0,1.0,1.0};
+	float mat_shininess[] = {2.0}; 
+
+	glMaterialfv(GL_FRONT,GL_AMBIENT,mat_ambient);
+	glMaterialfv(GL_FRONT,GL_DIFFUSE,mat_diffuse);
+	glMaterialfv(GL_FRONT,GL_SPECULAR,mat_specular);
+	glMaterialfv(GL_FRONT,GL_SHININESS,mat_shininess);
+}
+
+
+unsigned int set_shaders()
+{
+	GLint vertCompiled, fragCompiled;
+	string vs_str, fs_str;
+	GLuint v, f, p;
+	int result = -1;
+
+	v = glCreateShader(GL_VERTEX_SHADER);
+	f = glCreateShader(GL_FRAGMENT_SHADER);
+	vs_str = load_shader_file("bunny.vert");
+	fs_str = load_shader_file("bunny.frag");
+	const char *vs = vs_str.c_str();
+	const char *fs = fs_str.c_str();
+	glShaderSource(v, 1, &vs, NULL);
+	glShaderSource(f, 1, &fs, NULL);
+
+	glCompileShader(v);
+	glCompileShader(f);
+	glGetShaderiv(f,GL_COMPILE_STATUS,&result);
+	// fprintf(stderr,"%d\n",result);
+
+	p = glCreateProgram();
+	glAttachShader(p,f);
+	glAttachShader(p,v);
+	glLinkProgram(p);
+	glUseProgram(p);
+
+	return p;
 }
 

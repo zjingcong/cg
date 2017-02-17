@@ -20,6 +20,9 @@
 // after a gluLookAt(), you'll need to do the lighting in eye coordinates, 
 // not world coordinates.
 //
+
+// to compile: g++ -I/usr/include -I/usr/X11R6/include -L/usr/lib -L/usr/X11R6/lib -O2 phong.c -lX11 -lGL -lGLU -lGLEW -lglut -lm -lXmu -lXi -DGL_GLEXT_PROTOTYPES -o phong
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -28,22 +31,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+# include <iostream>
+# include <fstream>
 
-char *read_shader_program(char *filename) 
+using namespace std;
+
+string read_shader_program(const char *filePath)
 {
-FILE *fp;
-char *content = NULL;
-int fd, count;
-fd = open(filename,O_RDONLY);
-count = lseek(fd,0,SEEK_END);
-close(fd);
-content = (char *)calloc(1,(count+1));
-fp = fopen(filename,"r");
-count = fread(content,sizeof(char),count,fp);
-content[count] = '\0';
-fclose(fp);
-return content;
+		string content;
+    ifstream fileStream(filePath, std::ios::in);
+
+    if(!fileStream.is_open()) {
+        cerr << "Could not read file " << filePath << ". File does not exist." << endl;
+        exit(0);
+    }
+    string line = "";
+    while(!fileStream.eof()) {
+        getline(fileStream, line);
+        content.append(line + "\n");
+    }
+		
+		return content;
 }
+
 
 float eye[3] = {3.0,3.0,3.0};
 float viewpt[3] = {0.0,0.0,0.0};
@@ -89,17 +99,17 @@ glutSwapBuffers();
 unsigned int set_shaders()
 {
 GLint vertCompiled, fragCompiled;
-char *vs, *fs;
 GLuint v, f, p;
+string vs_str, fs_str;
 
 v = glCreateShader(GL_VERTEX_SHADER);
 f = glCreateShader(GL_FRAGMENT_SHADER);
-vs = read_shader_program("phong.vert");
-fs = read_shader_program("phong.frag");
-glShaderSource(v,1,(const char **)&vs,NULL);
-glShaderSource(f,1,(const char **)&fs,NULL);
-free(vs);
-free(fs); 
+vs_str = read_shader_program("phong.vert");
+fs_str = read_shader_program("phong.frag");
+const char *vs = vs_str.c_str();
+const char *fs = fs_str.c_str();
+glShaderSource(v,1,&vs,NULL);
+glShaderSource(f,1,&fs,NULL);
 glCompileShader(v);
 glCompileShader(f);
 p = glCreateProgram();
@@ -136,51 +146,4 @@ glutKeyboardFunc(getout);
 glutMainLoop();
 return 0;
 }
-
-/*
-//.....................................................................
-// phong.vert
-
-varying vec3 wc_normal, wc_position;
-
-void main()
-{	
-// Store original (world coordinate) normal and vertex values as "varying"
-// so that they'll be interpolated and passed to fragment progam, where
-// we can use them to compute lighting.
-wc_normal = gl_Normal;
-wc_position = gl_Vertex;
-gl_Position = gl_ProjectionMatrix*gl_ModelViewMatrix*gl_Vertex;
-}
-
-//.....................................................................
-// phong.frag
-
-// Interpolate normals, and then apply lighting per pixel.
-
-// These are set by the .c code.
-uniform vec3 eye_position, light_position;
-
-// These are set by the .vert code, interpolated.
-varying vec3 wc_normal, wc_position;
-
-void main()
-{
-vec3 P, N, L, V, H;
-vec4 diffuse_color = gl_FrontMaterial.diffuse; 
-vec4 specular_color = gl_FrontMaterial.specular; 
-float shininess = gl_FrontMaterial.shininess;
-
-P = wc_position;
-N = normalize(wc_normal);
-L = normalize(light_position - P);
-V = normalize(eye_position - P);
-H = normalize(L+V);
-		
-diffuse_color *= max(dot(N,L),0.0);
-specular_color *= pow(max(dot(H,N),0.0),shininess);
-gl_FragColor = diffuse_color + specular_color; 
-// See the normals:
-// gl_FragColor = vec4(N,1.0); 
-}*/
 
