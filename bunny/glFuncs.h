@@ -47,13 +47,13 @@ void handleKey(unsigned char key, int x, int y)
 
 void mouseButton(int button, int state, int x, int y)
 {
-  // mouse left click to rotate
-  if (button == GLUT_LEFT_BUTTON)
-  {
-    // mouse left button is released
-    if (state == GLUT_UP) {mouse_button = 0;}
-    else {mouse_button = 1; left_origin = Vector(x, y, 0);}
-  }
+	// mouse left click to rotate
+	if (button == GLUT_LEFT_BUTTON)
+	{
+		// mouse left button is released
+		if (state == GLUT_UP) {mouse_button = 0;}
+		else {mouse_button = 1; left_origin = Vector(x, y, 0);}
+	}
 	// mouse right click to track
 	if (button == GLUT_RIGHT_BUTTON)
 	{

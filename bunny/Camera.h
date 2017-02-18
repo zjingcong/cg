@@ -66,7 +66,7 @@ Camera::Camera()
 void Camera::reset()
 {
 	camera_up = Vector(0.0, 1.0, 0.0);
-  eye = Vector(0.5, 0.5, 0.5);
+  eye = Vector(0.3, 0.3, 0.3);
   view = Vector(0.0, 0.0, 0.0);
   view_dir = (view - eye).unitvector();
 	right = (view_dir ^ camera_up).unitvector();
