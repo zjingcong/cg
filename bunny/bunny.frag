@@ -3,19 +3,19 @@ varying vec3 ec_vnormal, ec_vposition;
 
 # define PI 3.14159265
 
+
 // calculate the color when using a spot light
 // Blinn-Phong Lighting
-vec4 CalSpotLight(in gl_LightSourceParameters spotlight, in gl_MaterialParameters material)
+vec4 CalSpotLight(in gl_LightSourceParameters spotlight, in gl_MaterialParameters material, vec3 fragPos, vec3 normal, vec3 viewDir)
 {
 	vec4 ambientColor, diffuseColor, specColor;
 	vec3 P, N, L, V, H;
 
-	P = ec_vposition;	// fragment position
-	N = normalize(ec_vnormal);
-	V = normalize(-P);	// eye position is (0, 0, 0)
-
+	P = fragPos;
+	N = normal;
+	V = viewDir;
 	L = normalize(spotlight.position - P);
-	H = normalize(L + V);
+	H = normalize(L + V);	// halfway between L and V
 
 	// diffuse shading
 	float diff = max(dot(N, L), 0.0);
@@ -41,8 +41,18 @@ vec4 CalSpotLight(in gl_LightSourceParameters spotlight, in gl_MaterialParameter
 
 void main()
 {
+	vec3 fragPos, normal, viewDir;
+	fragPos = ec_vposition;
+	normal = normalize(ec_vnormal);
+	viewDir = normalize(-fragPos);
+
 	vec4 fragColor;
-	fragColor += CalSpotLight(gl_LightSource[0], gl_FrontMaterial);
+	// key light
+	fragColor += CalSpotLight(gl_LightSource[0], gl_FrontMaterial, fragPos, normal, viewDir);
+	// fill light
+	fragColor += CalSpotLight(gl_LightSource[1], gl_FrontMaterial, fragPos, normal, viewDir);
+	// back light
+	fragColor += CalSpotLight(gl_LightSource[2], gl_FrontMaterial, fragPos, normal, viewDir);
 
 	gl_FragColor = fragColor;
 }

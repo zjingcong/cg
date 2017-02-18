@@ -102,31 +102,75 @@ string load_shader_file(const char *filePath)
 }
 
 
+// Hollywood lighting
 void set_lights()
 {
+	// key light
 	float light0_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
-	float light0_diffuse[] = { 2.0, 2.0, 2.0, 0.0 }; 
+	float light0_diffuse[] = { 1.5, 1.5, 1.5, 0.0 }; 
 	float light0_specular[] = { 2.25, 2.25, 2.25, 0.0 }; 
 	float light0_position[] = { 2.0, 2.0, 0.0, 1.0 };
 	float light0_direction[] = { 0.0, 0.0, 0.0, 1.0};
 
-	// set scene default ambient 
-	// glLightModelfv(GL_LIGHT_MODEL_AMBIENT,light0_ambient); 
+	// fill light
+	float light1_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
+	float light1_diffuse[] = { 1.0, 1.0, 1.0, 0.0 }; 
+	float light1_specular[] = { 2.25, 2.25, 2.25, 0.0 }; 
+	float light1_position[] = { 0.0, 2.0, 2.0, 1.0 };
+	float light1_direction[] = { 0.0, 0.0, 0.0, 1.0};
 
-	// make specular correct for spots 
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,1); 
-	glLightfv(GL_LIGHT0,GL_AMBIENT,light0_ambient); 
-	glLightfv(GL_LIGHT0,GL_DIFFUSE,light0_diffuse); 
-	glLightfv(GL_LIGHT0,GL_SPECULAR,light0_specular); 
-	glLightf(GL_LIGHT0,GL_SPOT_EXPONENT,0.1); 
-	glLightf(GL_LIGHT0,GL_SPOT_CUTOFF,180.0); 
-	glLightf(GL_LIGHT0,GL_CONSTANT_ATTENUATION,1.0); 
-	glLightf(GL_LIGHT0,GL_LINEAR_ATTENUATION,0.2); 
-	glLightf(GL_LIGHT0,GL_QUADRATIC_ATTENUATION,0.01); 
-	glLightfv(GL_LIGHT0,GL_POSITION,light0_position);
-	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,light0_direction);
+	// back light
+	float light2_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
+	float light2_diffuse[] = { 1.0, 1.0, 1.0, 0.0 }; 
+	float light2_specular[] = { 2.25, 2.25, 2.25, 0.0 }; 
+	float light2_position[] = { -2.0, 2.0, -2.0, 1.0 };
+	float light2_direction[] = { 0.0, 0.0, 0.0, 1.0};
+
+	// set scene default ambient 
+	// glLightModelfv(GL_LIGHT_MODEL_AMBIENT,light0_ambient);
+
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
+
+	// key light
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient); 
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse); 
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light0_specular); 
+	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 0.1); 
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 180.0); 
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0); 
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.2); 
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01); 
+	glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, light0_direction);
+
+	// fill light
+	glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient); 
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_diffuse); 
+	glLightfv(GL_LIGHT1, GL_SPECULAR, light1_specular); 
+	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 0.1); 
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 180.0); 
+	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0); 
+	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.2); 
+	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.01); 
+	glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, light1_direction);
+
+	// back light
+	glLightfv(GL_LIGHT2, GL_AMBIENT, light2_ambient); 
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, light2_diffuse); 
+	glLightfv(GL_LIGHT2, GL_SPECULAR, light2_specular); 
+	glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 0.1); 
+	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 180.0); 
+	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0); 
+	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0.2); 
+	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.01); 
+	glLightfv(GL_LIGHT2, GL_POSITION, light2_position);
+	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, light2_direction);
+
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
+	glEnable(GL_LIGHT2);
 }
 
 
@@ -162,8 +206,8 @@ unsigned int set_shaders()
 
 	glCompileShader(v);
 	glCompileShader(f);
-	glGetShaderiv(f,GL_COMPILE_STATUS,&result);
-	// fprintf(stderr,"%d\n",result);
+	glGetShaderiv(f,GL_COMPILE_STATUS, &result);
+	// cerr << result << endl;
 
 	p = glCreateProgram();
 	glAttachShader(p,f);
