@@ -94,11 +94,12 @@ void Camera::rotation(double theta, Vector axis)
 }
 
 
-void Camera::zoom(double distance)
+void Camera::zoom(double step_size)
 {
 	Vector eye_view = view - eye;
+	double distance = step_size * eye_view.magnitude();
 	Vector eye_view_new = eye_view - distance * view_dir;
-	if (eye_view_new.magnitude() > near)
+	if (eye_view_new.magnitude() > (near + 0.01f))
 	{
 		Vector eye_new = view - eye_view_new;
 		setEyeViewUp(eye_new, view, up);

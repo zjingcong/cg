@@ -8,7 +8,7 @@ using namespace std;
 
 # define GLUT_WHEEL_UP 3
 # define GLUT_WHEEL_DOWN 4
-# define ZOOM	0.08
+# define ZOOM	0.1
 
 
 Camera myCamera;
@@ -87,13 +87,15 @@ void mouseMove(int x, int y)
       // get deltaAngle
       Vector xy(x, y, 0);
       Vector delta_v = xy - left_origin;
-	    double deltaAngle = delta_v.magnitude() * 0.01f;
+			if (delta_v.magnitude() == 0)	{delta_v = Vector(1.0, 1.0, 0.0);}
+	    double deltaAngle = delta_v.magnitude() * 0.1f;
       // get rotation axis
       Vector my_view_dir = myCamera.getViewDir();
 			Vector right = myCamera.getRight();
 			Vector axis = -delta_v.Y() * myCamera.getRight() - delta_v.X() * myCamera.getUp();
 	    // update camera's direction
 	    myCamera.rotation(deltaAngle, axis);
+			left_origin = Vector(x, y, 0);
 			glutPostRedisplay();
 
       break;
@@ -102,10 +104,11 @@ void mouseMove(int x, int y)
 		// mouse right click
 		case 2:
 		{
-			double delta_x = (x - right_origin.X()) * 0.0001f;
-			double delta_y = (y - right_origin.Y()) * 0.0001f;
+			double delta_x = (x - right_origin.X()) * 0.0005f;
+			double delta_y = (y - right_origin.Y()) * 0.0005f;
 			Vector trans = - delta_x * myCamera.getRight() + delta_y * myCamera.getUp();
 			myCamera.track(trans);
+			right_origin = Vector(x, y, 0);
 			glutPostRedisplay();
 
 			break;

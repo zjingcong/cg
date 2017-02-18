@@ -110,9 +110,8 @@ void set_lights()
 	float light0_position[] = { 2.0, 2.0, 0.0, 1.0 };
 	float light0_direction[] = { 0.0, 0.0, 0.0, 1.0};
 
-	/*
 	// set scene default ambient 
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,light0_ambient); 
+	// glLightModelfv(GL_LIGHT_MODEL_AMBIENT,light0_ambient); 
 
 	// make specular correct for spots 
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,1); 
@@ -128,8 +127,6 @@ void set_lights()
 	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,light0_direction);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	*/
-	glLightfv(GL_LIGHT0,GL_POSITION,light0_position);
 }
 
 
