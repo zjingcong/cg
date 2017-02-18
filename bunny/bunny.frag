@@ -3,51 +3,46 @@ varying vec3 ec_vnormal, ec_vposition;
 
 # define PI 3.14159265
 
-struct Material
-{
-	// material ambient, diffuse and specular reflectance
-	vec4 diffuse;
-	vec4 specular;
-	vec4 ambient;
-	float shininess;
-};
-
-
 // calculate the color when using a spot light
 // Blinn-Phong Lighting
-vec4 CalSpotLight(in gl_LightSourceParameters spotlight, Material material)
+vec4 CalSpotLight(in gl_LightSourceParameters spotlight, in gl_MaterialParameters material)
 {
-	vec4 diffuseColor, specColor;
+	vec4 ambientColor, diffuseColor, specColor;
 	vec3 P, N, L, V, H;
-	vec4 material_diff = material.diffuse; 
-	vec4 material_spec = material.specular; 
-	float material_shininess = material.shininess;
 
-	P = ec_vposition;
+	P = ec_vposition;	// fragment position
 	N = normalize(ec_vnormal);
-	V = normalize(-P);
+	V = normalize(-P);	// eye position is (0, 0, 0)
 
 	L = normalize(spotlight.position - P);
 	H = normalize(L + V);
-		
-	diffuseColor = material_diff * max(dot(N, L), 0.0);
-	specColor = material_spec * ((material_shininess + 2.0) / (8.0 * PI)) * pow(max(dot(H, N), 0.0), material_shininess);
 
-	return (diffuseColor + specColor);
+	// diffuse shading
+	float diff = max(dot(N, L), 0.0);
+	// specular shading
+	float spec = ((material.shininess + 2.0) / (8.0 * PI)) * pow(max(dot(H, N), 0.0), material.shininess);
+	// attenuation
+	float kc = spotlight.constantAttenuation;
+	float kl = spotlight.linearAttenuation;
+	float kq = spotlight.quadraticAttenuation;
+	float d = length(spotlight.position - P);
+	float attenuation = 1.0f / (kc + kl * d + kq * d * d);
+	// calculate color
+	ambientColor = spotlight.ambient * material.ambient;
+	diffuseColor = spotlight.diffuse * material.diffuse * diff;
+	specColor = spotlight.specular * material.specular * spec;
+	ambientColor *= attenuation;
+	diffuseColor *= attenuation;
+	specColor *= attenuation;
+
+	return (ambientColor + diffuseColor + specColor);
 }
 
 
 void main()
 {
-	// set material
-	Material myMaterial;
-	myMaterial.diffuse = gl_FrontMaterial.diffuse;
-	myMaterial.specular = gl_FrontMaterial.specular;
-	myMaterial.shininess = gl_FrontMaterial.shininess;
-	myMaterial.ambient = gl_FrontMaterial.ambient;
-
 	vec4 fragColor;
-	fragColor += CalSpotLight(gl_LightSource[0], myMaterial);
+	fragColor += CalSpotLight(gl_LightSource[0], gl_FrontMaterial);
 
 	gl_FragColor = fragColor;
 }
