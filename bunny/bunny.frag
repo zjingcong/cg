@@ -27,13 +27,17 @@ vec4 CalSpotLight(in gl_LightSourceParameters spotlight, in gl_MaterialParameter
 	float kq = spotlight.quadraticAttenuation;
 	float d = length(spotlight.position - P);
 	float attenuation = 1.0f / (kc + kl * d + kq * d * d);
+	// cutoff
+	float lightAngle = degrees(acos(max(dot((-L), normalize(spotlight.spotDirection)), 0.0)));
+	if (lightAngle > spotlight.spotCutoff)	{attenuation = 0.0;}
+	// spot falloff
+	float spot = pow(max(dot((-L), normalize(spotlight.spotDirection)), 0.0), spotlight.spotExponent);
 	// calculate color
 	ambientColor = spotlight.ambient * material.ambient;
 	diffuseColor = spotlight.diffuse * material.diffuse * diff;
 	specColor = spotlight.specular * material.specular * spec;
-	ambientColor *= attenuation;
-	diffuseColor *= attenuation;
-	specColor *= attenuation;
+	diffuseColor *= (attenuation * spot);
+	specColor *= (attenuation * spot);
 
 	return (ambientColor + diffuseColor + specColor);
 }
@@ -44,15 +48,15 @@ void main()
 	vec3 fragPos, normal, viewDir;
 	fragPos = ec_vposition;
 	normal = normalize(ec_vnormal);
-	viewDir = normalize(-fragPos);
+	viewDir = normalize(-fragPos);	// eye position is (0, 0, 0)
 
 	vec4 fragColor;
 	// key light
 	fragColor += CalSpotLight(gl_LightSource[0], gl_FrontMaterial, fragPos, normal, viewDir);
 	// fill light
-	fragColor += CalSpotLight(gl_LightSource[1], gl_FrontMaterial, fragPos, normal, viewDir);
+	// fragColor += CalSpotLight(gl_LightSource[1], gl_FrontMaterial, fragPos, normal, viewDir);
 	// back light
-	fragColor += CalSpotLight(gl_LightSource[2], gl_FrontMaterial, fragPos, normal, viewDir);
+	// fragColor += CalSpotLight(gl_LightSource[2], gl_FrontMaterial, fragPos, normal, viewDir);
 
 	gl_FragColor = fragColor;
 }
