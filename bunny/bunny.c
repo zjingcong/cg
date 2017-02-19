@@ -45,10 +45,8 @@ void display()
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-	// glEnableClientState(GL_COLOR_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 6 * sizeof(GLfloat), vertices);
 	glNormalPointer(GL_FLOAT, 6 * sizeof(GLfloat), &vertices[3]);
-	// glColorPointer(3, GL_FLOAT, 6 * sizeof(GLfloat), &vertices[3]);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDrawElements(GL_TRIANGLES, 3 * face_count, GL_UNSIGNED_INT, faces);

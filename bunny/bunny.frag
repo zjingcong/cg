@@ -51,12 +51,14 @@ void main()
 	viewDir = normalize(-fragPos);	// eye position is (0, 0, 0)
 
 	vec4 fragColor;
+	// scene ambient
+	fragColor += gl_FrontLightModelProduct.sceneColor;	// GL_LIGHT_MODEL_AMBIENT
 	// key light
 	fragColor += CalSpotLight(gl_LightSource[0], gl_FrontMaterial, fragPos, normal, viewDir);
 	// fill light
-	// fragColor += CalSpotLight(gl_LightSource[1], gl_FrontMaterial, fragPos, normal, viewDir);
+	fragColor += CalSpotLight(gl_LightSource[1], gl_FrontMaterial, fragPos, normal, viewDir);
 	// back light
-	// fragColor += CalSpotLight(gl_LightSource[2], gl_FrontMaterial, fragPos, normal, viewDir);
+	fragColor += CalSpotLight(gl_LightSource[2], gl_FrontMaterial, fragPos, normal, viewDir);
 
 	gl_FragColor = fragColor;
 }

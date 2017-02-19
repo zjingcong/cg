@@ -105,6 +105,9 @@ string load_shader_file(const char *filePath)
 // Hollywood lighting
 void set_lights()
 {
+	// scene ambient
+	float scene_ambient[] = {10.0, 0.0, 0.0, 1.0};
+
 	// key light
 	float light0_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
 	float light0_diffuse[] = { 1.5, 1.5, 1.5, 0.0 }; 
@@ -127,10 +130,10 @@ void set_lights()
 	float light2_direction[] = { 2.0, -2.0, 2.0, 1.0};
 
 	// set scene default ambient 
-	// glLightModelfv(GL_LIGHT_MODEL_AMBIENT,light0_ambient);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, scene_ambient);
 
+	// set hollywood light
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
-
 	// key light
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse); 
@@ -176,7 +179,7 @@ void set_lights()
 
 void set_material()
 {
-	float mat_ambient[] = {0.0,0.0,0.0,1.0}; 
+	float mat_ambient[] = {0.5,0.5,0.5,1.0}; 
 	float mat_diffuse[] = {0.5,0.5,0.1,1.0}; 
 	float mat_specular[] = {1.0,1.0,1.0,1.0};
 	float mat_shininess[] = {2.0}; 
