@@ -1,0 +1,23 @@
+--------------------------------------------
+| CPSC 6050 Project#2 SHOW ME THE BUNNY    |
+| ======================================== |
+|  Jingcong Zhang <jingcoz@clemson.edu>    |
+|  Xiaotong Zhong <xiaotoz@clemson.edu>    |
+|                                          |
+|  Date: 2017-02-18                        |
+--------------------------------------------
+
+This program is to render the Stanford Bunny using OpenGL with a GLSL shader.
+
+Compiling Instruction: use Makefile
+
+Usage:
+	Selectable Eye Point & View Direction:
+	- Rotation: Click the left mouse button and drag
+	- Zoom in and out: Scroll up and down the mouse wheel
+	- Track: Click the right mouse button and drag
+	- Focus: Press "f" or "F"
+
+	Quit Program:
+	- Press "q", "Q" or "Esc"
+
