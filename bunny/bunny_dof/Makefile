@@ -1,20 +1,18 @@
 C	= c
-CC = g++
 
-CFLAGS		= -g -Wall -O2
-
-LDFLAGS =  `Magick++-config  --cppflags --cxxflags --ldflags --libs` -L/usr/local/lib -lOpenImageIO -lX11 -lGL -lGLEW -lGLU -lglut -lm -lXmu -lXi -DGL_GLEXT_PROTOTYPES
+LINKS =  `Magick++-config  --cppflags --cxxflags --ldflags --libs` -L/usr/local/lib -lOpenImageIO -lX11 -lGL -lGLEW -lGLU -lglut -lm -lXmu -lXi -DGL_GLEXT_PROTOTYPES
 
 INCLUDES = -I ./ `Magick++-config  --cppflags --cxxflags`
+
+CXX = g++ -Wall -g -O2
 
 PROJECT	= bunny
 
 .C.o:
-	$(CC) ${CFLAGS} -c $(INCLUDES) $<
+	$(CXX) -c $(INCLUDES) $<
 
 ${PROJECT}:  ${PROJECT}.${C}
-	$(CC) ${CFLAGS} ${PROJECT}.${C} $(INCLUDES) $(LDFLAGS) -o ${PROJECT}
+	$(CXX) ${PROJECT}.${C} $(INCLUDES) $(LINKS) -o ${PROJECT}
 
 clean:
-	rm -f core.* *.o *~ ${PROJECT}
-
+	rm -rf core.* *.o *~ ${PROJECT}

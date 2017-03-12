@@ -8,7 +8,7 @@ varying vec3 ec_vnormal, ec_vposition;
 // Blinn-Phong Lighting
 vec4 CalSpotLight(in gl_LightSourceParameters spotlight, in gl_MaterialParameters material, vec3 fragPos, vec3 normal, vec3 viewDir)
 {
-	vec4 ambientColor, diffuseColor, specColor, tcolor;
+	vec4 ambientColor, diffuseColor, specColor;
 	vec3 P, N, L, V, H;
 
 	P = fragPos;
@@ -20,7 +20,7 @@ vec4 CalSpotLight(in gl_LightSourceParameters spotlight, in gl_MaterialParameter
 	// diffuse shading
 	float diff = max(dot(N, L), 0.0);
 	// specular shading
-	float spec = ((material.shininess + 2.0) / (8.0 * PI)) * pow(max(dot(H, N), 0.0), material.shininess);
+	float spec = ((material.shininess + 2.0) / (8.0 * PI)) * pow(max(dot(H, N), 0.0),  material.shininess);
 	// attenuation
 	float kc = spotlight.constantAttenuation;
 	float kl = spotlight.linearAttenuation;

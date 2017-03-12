@@ -1,5 +1,6 @@
 // These are set by the .vert code, and they're interpolated.
 varying vec3 ec_vnormal, ec_vposition;
+uniform sampler2D mytexture;
 
 # define PI 3.14159265
 
@@ -8,7 +9,7 @@ varying vec3 ec_vnormal, ec_vposition;
 // Blinn-Phong Lighting
 vec4 CalSpotLight(in gl_LightSourceParameters spotlight, in gl_MaterialParameters material, vec3 fragPos, vec3 normal, vec3 viewDir)
 {
-	vec4 ambientColor, diffuseColor, specColor;
+	vec4 ambientColor, diffuseColor, specColor, tcolor;
 	vec3 P, N, L, V, H;
 
 	P = fragPos;
@@ -33,8 +34,11 @@ vec4 CalSpotLight(in gl_LightSourceParameters spotlight, in gl_MaterialParameter
 	// spot falloff
 	float spot = pow(max(dot((-L), normalize(spotlight.spotDirection)), 0.0), spotlight.spotExponent);
 	// calculate color
+
+	tcolor = texture2D(mytexture,gl_TexCoord[0].st);
 	ambientColor = spotlight.ambient * material.ambient;
-	diffuseColor = spotlight.diffuse * material.diffuse * diff;
+	diffuseColor =(0.1*material.diffuse+0.9*tcolor) * diff;
+	diffuseColor.w = 0.1;
 	specColor = spotlight.specular * material.specular * spec;
 	diffuseColor *= (attenuation * spot);
 	specColor *= (attenuation * spot);
