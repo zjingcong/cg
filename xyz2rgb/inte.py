@@ -126,10 +126,10 @@ def main():
     load_f('fx.txt', fx_list)
     load_f('fy.txt', fy_list)
     load_f('fz.txt', fz_list)
-    print "s: ", s_list
-    print "fx: ", fx_list
-    print "fy: ", fy_list
-    print "fz: ", fz_list
+    # print "s: ", s_list
+    # print "fx: ", fx_list
+    # print "fy: ", fy_list
+    # print "fz: ", fz_list
 
     N = get_N()
     X = get_XYZ(fx_list, N)
