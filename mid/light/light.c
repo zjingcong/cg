@@ -40,6 +40,7 @@ int main()
 	H = (L + V).unitvector();
 	
 	float diff = getMax(N * L, 0.0);
+    // multiple (shininess + 2.0) / (8.0 * M_PI) - normalized blinn-phong
 	float spec = /*((shininess + 2.0) / (8.0 * M_PI)) * */pow(getMax(H * N, 0.0), shininess);
 	float d = (litPos - P).magnitude();
 	float attenuation = 1.0f / (kc + kl * d + kq * d * d);
