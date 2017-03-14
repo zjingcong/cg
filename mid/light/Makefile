@@ -1,8 +1,8 @@
 C	= c
 
-LINKS =  `Magick++-config  --cppflags --cxxflags --ldflags --libs` -L/usr/local/lib -lOpenImageIO -lX11 -lGL -lGLEW -lGLU -lglut -lm -lXmu -lXi -DGL_GLEXT_PROTOTYPES
+LINKS =  -L/usr/local/lib -lX11 -lGL -lGLEW -lGLU -lglut -lm -lXmu -lXi -DGL_GLEXT_PROTOTYPES
 
-INCLUDES = -I ./ `Magick++-config  --cppflags --cxxflags`
+INCLUDES = -I ./
 
 CXX = g++ -Wall -g -O2
 

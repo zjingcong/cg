@@ -1,6 +1,4 @@
 
-# include <stdio.h>
-# include <stdlib.h>
 # include <string.h>
 # include <iostream>
 # include "math.h"
@@ -14,19 +12,18 @@ using namespace lux;
 
 # define getMax(x, y) (x > y ? x : y)
 # define getMin(x, y) (x < y ? x : y)
-# define PI 3.14159265
 
 Vector vpos(1, 0, 0);
 Vector vnormal(0, 1, 0);
-Vector eye(2, pow(2.0, 0.5), 1);
-Vector litPos(0, pow(2.0, 0.5), 1);
+Vector eye(2, M_SQRT2, 1);
+Vector litPos(0, M_SQRT2, 1);
 Vector litDir(0, -1, 0);
 float kc = 0;
 float kq = 0;
 float kl = 1;
 Vector matAmbient(0, 0, 0);
 Vector matSpec(0.6, 0, 0.6);
-Vector matDiff(0.6 * pow(2.0, 0.5), 0, 0);
+Vector matDiff(0.6 * M_SQRT2, 0, 0);
 Vector litSpec(1, 1, 1);
 Vector litDiff(1, 1, 1);
 float shininess = 2.0;
@@ -41,14 +38,9 @@ int main()
 	V = (eye - vpos).unitvector();
 	L = (litPos - P).unitvector();
 	H = (L + V).unitvector();
-
-	cout << P.X() << " " << P.Y() << " " << P.Z() << endl;
-	cout << eye.X() << " " << eye.Y() << " " << eye.Z() << endl;
-	cout << V.X() << " " << V.Y() << " " << V.Z() << endl;
-	cout << L.X() << " " << L.Y() << " " << L.Z() << endl;
 	
 	float diff = getMax(N * L, 0.0);
-	float spec = ((shininess + 2.0) / (8.0 * PI)) * pow(getMax(H * N, 0.0), shininess);
+	float spec = /*((shininess + 2.0) / (8.0 * M_PI)) * */pow(getMax(H * N, 0.0), shininess);
 	float d = (litPos - P).magnitude();
 	float attenuation = 1.0f / (kc + kl * d + kq * d * d);
 	float spot = pow(getMax((-L) * litDir.unitvector(), 0.0), falloff);
