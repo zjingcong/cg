@@ -183,6 +183,7 @@ glMatrixMode(GL_TEXTURE);
 glActiveTexture(GL_TEXTURE7);
 glLoadIdentity();
 glTranslatef(0.0,0.0,-0.005);
+// glTranslatef(0.0,0.0,0.005);
 glScalef(0.5,0.5,0.5);
 glTranslatef(1.0,1.0,1.0);
 gluPerspective(45.0,(float)(XRES)/(float)(YRES),0.1,20.0);
