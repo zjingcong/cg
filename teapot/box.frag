@@ -47,5 +47,6 @@ void main()
 		fragColor += CalSpotLight(i);
 	}
 	gl_FragColor = fragColor;
+	// gl_FragColor = gl_Color;
 }
 

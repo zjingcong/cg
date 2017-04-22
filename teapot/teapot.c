@@ -30,23 +30,6 @@ int reflect_num;
 using namespace std;
 
 
-void set_viewvolume()
-{
-	glm::vec3 eye(0.5, 0.5, 1.96);
-	glm::vec3 view(0.5, 0.5, 0.0);
-	glm::vec3 up(0.0, 1.0, 0.0);
-
-	// specify size and shape of view volume 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0, float(WIN_X) / WIN_Y, 0.1, 20.0);
-	// specify position for view volume 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(eye.x,eye.y,eye.z,view.x,view.y,view.z,up.x,up.y,up.z);
-}
-
-
 string load_shader_file(const char *filePath)
 {
 	string content;
@@ -112,27 +95,51 @@ unsigned int set_shaders(int id)
 }
 
 
-void set_lights(glm::vec3 pos, glm::vec3 color, glm::vec3 dir, float exp, float cutoff)
+void set_viewvolume()
 {
-	float light0_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
-	float light0_diffuse[] = { color.x, color.y, color.z, 0.0 }; 
-	float light0_specular[] = { 1.0, 1.0, 1.0, 0.0 }; 
-	float light0_position[] = { pos.x, pos.y, pos.z, 1.0 };
-	float light0_direction[] = { dir.x, dir.y, dir.z, 1.0};
+	glm::vec3 eye(0.5, 0.5, 1.96);
+	// glm::vec3 eye(0.5, 0.5, 0.05);
+	// glm::vec3 view(0.0, 0.0, 0.5);
+	glm::vec3 view(0.5, 0.5, 0.0);
+	glm::vec3 up(0.0, 1.0, 0.0);
 
+	// specify size and shape of view volume 
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(45.0, float(WIN_X) / WIN_Y, 0.1, 20.0);
+	// specify position for view volume 
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(eye.x,eye.y,eye.z,view.x,view.y,view.z,up.x,up.y,up.z);
+}
+
+
+void set_scene_ambient()
+{
+	float scene_ambient[] = {0.0, 0.0, 0.0, 0.0};
 	// set scene default ambient 
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,light0_ambient);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, scene_ambient);
+}
+
+
+void set_lights(unsigned int gl_light_id, glm::vec3 pos, glm::vec3 color, glm::vec3 dir, float exp, float cutoff)
+{
+	float light_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
+	float light_diffuse[] = { color.x, color.y, color.z, 0.0 }; 
+	float light_specular[] = { 1.0, 1.0, 1.0, 0.0 }; 
+	float light_position[] = { pos.x, pos.y, pos.z, 1.0 };
+	float light_direction[] = { dir.x, dir.y, dir.z, 1.0};
 
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,1); 
-	glLightfv(GL_LIGHT0,GL_AMBIENT,light0_ambient); 
-	glLightfv(GL_LIGHT0,GL_DIFFUSE,light0_diffuse); 
-	glLightfv(GL_LIGHT0,GL_SPECULAR,light0_specular); 
-	glLightf(GL_LIGHT0,GL_SPOT_EXPONENT,exp); 
-	glLightf(GL_LIGHT0,GL_SPOT_CUTOFF,cutoff); 
-	glLightfv(GL_LIGHT0,GL_POSITION,light0_position);
-	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,light0_direction);
+	glLightfv(gl_light_id, GL_AMBIENT, light_ambient); 
+	glLightfv(gl_light_id, GL_DIFFUSE, light_diffuse); 
+	glLightfv(gl_light_id, GL_SPECULAR, light_specular); 
+	glLightf(gl_light_id, GL_SPOT_EXPONENT, exp); 
+	glLightf(gl_light_id, GL_SPOT_CUTOFF, cutoff); 
+	glLightfv(gl_light_id, GL_POSITION, light_position);
+	glLightfv(gl_light_id, GL_SPOT_DIRECTION, light_direction);
 	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
+	glEnable(gl_light_id);
 }
 
 
@@ -143,7 +150,7 @@ void set_material(int id)
 		// box material
 		case 0:
 		{
-			float mat_shininess[] = {2};
+			float mat_shininess[] = {4};
 			glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 			break;
 		}
@@ -185,6 +192,7 @@ void render_scene()
 void do_render()
 {
 	set_viewvolume();
+	set_scene_ambient();
 
 	if (ray_num == 0)
 	{
@@ -216,7 +224,9 @@ void do_render()
 		cout << "------------------------------------------" << endl;
 
 		// set main light
-		set_lights(light_ray.pos, light_ray.color, light_ray.dir, 0.1, 180.0);
+		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color, light_ray.dir, 0.1, 180.0);
+		// set other lights
+		set_lights(GL_LIGHT1, ray.pos, ray.color, ray.dir, 0.1, 180.0);
 
 		// render the scene
 		render_scene();
@@ -267,8 +277,6 @@ int main(int argc, char **argv)
 	reflect_num = atoi(argv[2]);
 	initGL(argc, argv);
 	pre_load();
-	// do_render();
-	// cout << "intersection_num: " << intersection_num << endl;
 	glutDisplayFunc(do_render);
 	glutMainLoop();
 

@@ -88,7 +88,7 @@ Ray pick_ray()
 	if (light_dir.y > 0)	{light_dir.y = -light_dir.y;}
 	light_dir = glm::normalize(light_dir);
 
-	glm::vec3 white(2.0, 2.0, 2.0);
+	glm::vec3 white(1.0, 1.0, 1.0);
 	Ray ray;
 	ray.pos = light_pos;
 	ray.dir = light_dir;
