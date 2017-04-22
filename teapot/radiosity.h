@@ -17,6 +17,8 @@ typedef struct
 	glm::vec3 pos;
 	glm::vec3 dir;	// unit length vector
 	glm::vec3 color;	// light color
+	float exp;	// falloff
+	float cutoff;	// light cutoff: 180 for point light and [0, 90) for spotlight
 }	Ray;
 
 
@@ -31,6 +33,7 @@ typedef struct
 
 
 vector<Triangle> triangle_list;
+float box_falloff = 0.1;	// spotlight falloff for vlp on box
 
 
 void generateBoxTri()
@@ -93,6 +96,8 @@ Ray pick_ray()
 	ray.pos = light_pos;
 	ray.dir = light_dir;
 	ray.color = white;	// light color: white
+	ray.exp = 0.1;	// light falloff
+	ray.cutoff = 180;
 
 	return ray;
 }
@@ -156,7 +161,9 @@ bool find_intersection(Ray current_ray, Ray &new_ray)
 	glm::vec3 N;
 	glm::vec3 intersection;
 	glm::vec3 color;
+	float falloff;
 	bool find_intersection = false;
+	// find intersection with cornell box
 	for (vector<Triangle>::iterator it = triangle_list.begin(); it != triangle_list.end(); ++it)
 	{
 		Triangle tri = *it;
@@ -164,6 +171,7 @@ bool find_intersection(Ray current_ray, Ray &new_ray)
 		{
 			find_intersection = true;
 			color = tri.C;
+			falloff = 20.0;
 			goto end_loop;
 		}
 	}
@@ -177,6 +185,8 @@ bool find_intersection(Ray current_ray, Ray &new_ray)
 	new_ray.pos = intersection;
 	new_ray.dir = R;
 	new_ray.color = color;
+	new_ray.exp = falloff;
+	new_ray.cutoff = 20.0;
 
 	return true;
 }

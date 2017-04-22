@@ -25,6 +25,7 @@
 
 int ray_num;
 int reflect_num;
+float reflect_att = 0.7;	// attenuation for each reflection
 
 
 using namespace std;
@@ -196,6 +197,7 @@ void do_render()
 
 	if (ray_num == 0)
 	{
+		set_lights(GL_LIGHT0, glm::vec3(0.5, LENGTH - 0.02f, 0.5), glm::vec3(1.0, 1.0, 1.0), glm::vec3(0.0, -1.0, 0.0), 20.0, 180.0);
 		render_scene();
 		return;
 	}
@@ -226,14 +228,17 @@ void do_render()
 		*/
 
 		// set main light
-		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color, light_ray.dir, 0.1, 180.0);
-		// set other lights
+		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color, light_ray.dir, light_ray.exp, light_ray.cutoff);
+		// set vlp
+		// note: large falloff if surface is shiny, make it spotlight
 		Ray current_ray = ray;
+		float att = 1.0;
 		for (int i = 1; i <= reflect_num; ++i)
 		{
 			// cout << "reflect ray..." << endl;
 			// set light for current_ray
-			set_lights(GL_LIGHT1, current_ray.pos, current_ray.color, current_ray.dir, 0.1, 180.0);
+			att *= reflect_att;
+			set_lights(GL_LIGHT1, current_ray.pos, att * current_ray.color, current_ray.dir, current_ray.exp, current_ray.cutoff);
 			// render the scene
 			render_scene();
 			glAccum(GL_ACCUM, 1.0f / ray_num);
@@ -290,5 +295,4 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-
 
