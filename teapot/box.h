@@ -16,6 +16,8 @@ GLfloat *light_normals;
 GLuint *light_faces;
 GLfloat *light_colors;
 
+int box_face_num = 5;
+
 
 void load_box()
 {
@@ -36,16 +38,21 @@ void load_box()
 		LENGTH, LENGTH, 0.0, 
 		LENGTH, LENGTH, LENGTH, 
 		0.0, LENGTH, LENGTH, 
-		// back
-		LENGTH, LENGTH, 0.0, 
-		0.0, LENGTH, 0.0, 
-		0.0, 0.0, 0.0, 
-		LENGTH, 0.0, 0.0, 
 		// bottom
 		0.0, 0.0, 0.0, 
 		0.0, 0.0, LENGTH, 
 		LENGTH, 0.0, LENGTH, 
 		LENGTH, 0.0, 0.0, 
+		// back
+		LENGTH, LENGTH, 0.0, 
+		0.0, LENGTH, 0.0, 
+		0.0, 0.0, 0.0, 
+		LENGTH, 0.0, 0.0, 
+		// front: for test
+		0.0, LENGTH, LENGTH, 
+		LENGTH, LENGTH, LENGTH, 
+		LENGTH, 0.0, LENGTH, 
+		0.0, 0.0, LENGTH
 	};
 
 	GLfloat normals[] = 
@@ -65,16 +72,21 @@ void load_box()
 		0.0, -1.0, 0.0, 
 		0.0, -1.0, 0.0, 
 		0.0, -1.0, 0.0, 
+		// bottom
+		0.0, 1.0, 0.0, 
+		0.0, 1.0, 0.0, 
+		0.0, 1.0, 0.0, 
+		0.0, 1.0, 0.0, 
 		// back
 		0.0, 0.0, 1.0, 
 		0.0, 0.0, 1.0, 
 		0.0, 0.0, 1.0, 
 		0.0, 0.0, 1.0, 
-		// bottom
-		0.0, 1.0, 0.0, 
-		0.0, 1.0, 0.0, 
-		0.0, 1.0, 0.0, 
-		0.0, 1.0, 0.0
+		// front
+		0.0, 0.0, -1.0, 
+		0.0, 0.0, -1.0, 
+		0.0, 0.0, -1.0, 
+		0.0, 0.0, -1.0, 
 	};
 
 	GLfloat colors[] = 
@@ -95,23 +107,28 @@ void load_box()
 		1.0, 1.0, 1.0, 
 		1.0, 1.0, 1.0, 
 		1.0, 1.0, 1.0, 
+		// bottom
+		1.0, 1.0, 1.0, 
+		1.0, 1.0, 1.0, 
+		1.0, 1.0, 1.0, 
+		1.0, 1.0, 1.0, 
 		// back
 		1.0, 1.0, 1.0, 
 		1.0, 1.0, 1.0, 
 		1.0, 1.0, 1.0, 
 		1.0, 1.0, 1.0, 
-		// bottom
+		// front
 		1.0, 1.0, 1.0, 
 		1.0, 1.0, 1.0, 
 		1.0, 1.0, 1.0, 
 		1.0, 1.0, 1.0
 	};
 
-	box_vertices =  (GLfloat *)calloc(20, 3 * sizeof(GLfloat));
-	box_normals =  (GLfloat *)calloc(20, 3 * sizeof(GLfloat));
-	box_colors =  (GLfloat *)calloc(20, 3 * sizeof(GLfloat));
-	box_faces =  (GLuint *)calloc(20, 3 * sizeof(GLuint));
-	for (int j = 0; j < 20 * 3; ++j)
+	box_vertices =  (GLfloat *)calloc(box_face_num * 4, 3 * sizeof(GLfloat));
+	box_normals =  (GLfloat *)calloc(box_face_num * 4, 3 * sizeof(GLfloat));
+	box_colors =  (GLfloat *)calloc(box_face_num * 4, 3 * sizeof(GLfloat));
+	box_faces =  (GLuint *)calloc(box_face_num * 4, 3 * sizeof(GLuint));
+	for (int j = 0; j < box_face_num * 4 * 3; ++j)
 	{
 		box_faces[j] = j;
 		box_vertices[j] = vertices[j];

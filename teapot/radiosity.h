@@ -34,9 +34,9 @@ vector<Triangle> triangle_list;
 
 void generateBoxTri()
 {
-	glm::vec3 point_list[20], normal_list[20], color_list[20];
+	glm::vec3 point_list[box_face_num * 4], normal_list[box_face_num * 4], color_list[box_face_num * 4];
 	// get all the point
-	for (int i = 0; i < 20; ++i)
+	for (int i = 0; i < box_face_num * 4; ++i)
 	{
 		glm::vec3 point, normal, color;
 		point.x = box_vertices[i * 3];
@@ -52,7 +52,7 @@ void generateBoxTri()
 		normal_list[i] = glm::normalize(normal);
 		color_list[i] = color;
 	}
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < box_face_num; ++i)
 	{
 		Triangle tri1, tri2;
 
@@ -119,23 +119,24 @@ bool MTintersection(Triangle tri,
 	{
 		e1 = -e1;
 		e2 = -e2;
+		// cout << "inverse" << endl;
 	}
 
 	pvec = glm::cross(dir, e2);
 	det = glm::dot(e1, pvec);
 
 	// back-facing triangles or ray misses the triangle
-	if (det < kEpsilon)	{return false;}
+	if (det < kEpsilon)	{/*cout << "backface" << endl;*/ return false;}
 	// ray and triangle are parallel
-	if (fabs(det) < kEpsilon)	{return false;}
+	if (fabs(det) < kEpsilon)	{/*cout << "parallel" << endl;*/ return false;}
 
 	inv_det = 1.0f / det;
 	tvec = origin - tri.V0;
 	u = glm::dot(tvec, pvec) * inv_det;
-	if (u < 0 || u > 1)	{return false;}
+	if (u < 0 || u > 1)	{/*cout << "u fail" << endl;*/ return false;}
 	qvec = glm::cross(tvec, e1);
 	v = glm::dot(dir, qvec) * inv_det;
-	if (v < 0 || u + v > 1)	{return false;}
+	if (v < 0 || u + v > 1)	{/*cout << "v fail" << endl;*/ return false;}
 	t = glm::dot(e2, qvec) * inv_det;
 
 	P = origin + t * dir;

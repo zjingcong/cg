@@ -26,6 +26,9 @@
 int ray_num;
 int reflect_num;
 
+// test
+int intersection_num = 0.0;
+
 
 using namespace std;
 
@@ -117,9 +120,7 @@ void set_lights(glm::vec3 pos, glm::vec3 color, glm::vec3 dir)
 	float light0_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
 	float light0_diffuse[] = { color.x, color.y, color.z, 0.0 }; 
 	float light0_specular[] = { 1.0, 1.0, 1.0, 0.0 }; 
-	// float light0_position[] = { 0.5, LENGTH - 0.02f, 0.5, 1.0 };
 	float light0_position[] = { pos.x, pos.y, pos.z, 1.0 };
-	// float light0_direction[] = { 0.0, -1.0, 0.0, 1.0};
 	float light0_direction[] = { dir.x, dir.y, dir.z, 1.0};
 
 	// set scene default ambient 
@@ -131,9 +132,6 @@ void set_lights(glm::vec3 pos, glm::vec3 color, glm::vec3 dir)
 	glLightfv(GL_LIGHT0,GL_SPECULAR,light0_specular); 
 	glLightf(GL_LIGHT0,GL_SPOT_EXPONENT,0.1); 
 	glLightf(GL_LIGHT0,GL_SPOT_CUTOFF,180.0); 
-	glLightf(GL_LIGHT0,GL_CONSTANT_ATTENUATION,1.0); 
-	glLightf(GL_LIGHT0,GL_LINEAR_ATTENUATION,0.2); 
-	glLightf(GL_LIGHT0,GL_QUADRATIC_ATTENUATION,0.01); 
 	glLightfv(GL_LIGHT0,GL_POSITION,light0_position);
 	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,light0_direction);
 	glEnable(GL_LIGHTING);
@@ -159,7 +157,7 @@ void display_scene()
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_vertices);
 	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), box_normals);
 	glColorPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_colors);
-	glDrawElements(GL_QUADS, 3 * 20, GL_UNSIGNED_INT, box_faces);
+	glDrawElements(GL_QUADS, 3 * box_face_num * 4, GL_UNSIGNED_INT, box_faces);
 	// draw light
 	set_shaders(1);
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), light_vertices);
@@ -172,9 +170,9 @@ void display_scene()
 
 void render_scene()
 {
-	set_viewvolume();
+	// set_viewvolume();
 	// set_lights();
-	set_material();
+	// set_material();
 	display_scene();
 	glFlush();
 }
@@ -182,32 +180,36 @@ void render_scene()
 
 void do_render()
 {
+	set_viewvolume();
+	set_material();
+
 	if (ray_num == 0)
 	{
 		render_scene();
 		return;
 	}
 
-	glClear(GL_ACCUM_BUFFER_BIT);
+	// glClear(GL_ACCUM_BUFFER_BIT);
 	for (int i = 0; i < ray_num; ++i)
 	{
 		// pick a random light
 		Ray ray = pick_ray();
-		cout << "ray pos: " << ray.pos.x << " " << ray.pos.y << " " << ray.pos.z << endl;
-		cout << "ray dir: " << ray.dir.x << " " << ray.dir.y << " " << ray.dir.z << endl;
+		// cout << "ray pos: " << ray.pos.x << " " << ray.pos.y << " " << ray.pos.z << endl;
+		// cout << "ray dir: " << ray.dir.x << " " << ray.dir.y << " " << ray.dir.z << endl;
 		glm::vec3 white(2.0, 2.0, 2.0);
 		set_lights(ray.pos, white, ray.dir);
 		for (int j = 1; j <= reflect_num; ++j)
 		{
 			if (set_vlp(ray.pos, ray.dir, j))
 			{
+				intersection_num++;
 				render_scene();
-				glAccum(GL_ACCUM, 1.0f / ray_num);
+				// glAccum(GL_ACCUM, 1.0f / ray_num);
 			}
 		}
 	}
-	glAccum(GL_RETURN, 1.0);
-	glutSwapBuffers();
+	// glAccum(GL_RETURN, 1.0);
+	// glutSwapBuffers();
 }
 
 
@@ -230,7 +232,7 @@ void pre_load()
 	// load models
 	load_box();	// load box
 	load_light();	// load light in cornell box
-	generateBoxTri();
+	generateBoxTri();	// get triangles for the box
 }
 
 
@@ -241,6 +243,8 @@ int main(int argc, char **argv)
 	reflect_num = atoi(argv[2]);
 	initGL(argc, argv);
 	pre_load();
+	// do_render();
+	// cout << "intersection_num: " << intersection_num << endl;
 	glutDisplayFunc(do_render);
 	glutMainLoop();
 
