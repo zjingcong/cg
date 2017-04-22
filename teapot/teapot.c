@@ -1,5 +1,5 @@
 
-// gcc -I/usr/include -I/usr/X11R6/include -L/usr/lib -L/usr/X11R6/lib -O2 teapot.c -lX11 -lGL -lGLU -lglut -lm -lXmu -lXi -o teapot
+// g++ -I/usr/include -I/usr/X11R6/include -L/usr/lib -L/usr/X11R6/lib -O2 teapot.c -lX11 -lGL -lGLU -lglut -lm -lXmu -lXi -o teapot
 
 # include <iostream>
 # include <stdio.h>
@@ -17,6 +17,7 @@
 # include <fstream>
 
 # include "box.h"
+# include "radiosity.h"
 
 # define WIN_X 1280
 # define WIN_Y 1024
@@ -111,13 +112,15 @@ unsigned int set_shaders(int id)
 }
 
 
-void set_lights()
+void set_lights(glm::vec3 pos, glm::vec3 color, glm::vec3 dir)
 {
 	float light0_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
-	float light0_diffuse[] = { 1.0, 1.0, 1.0, 0.0 }; 
+	float light0_diffuse[] = { color.x, color.y, color.z, 0.0 }; 
 	float light0_specular[] = { 1.0, 1.0, 1.0, 0.0 }; 
-	float light0_position[] = { 0.5, LENGTH - 0.02f, 0.5, 1.0 };
-	float light0_direction[] = { 0.0, -1.0, 0.0, 1.0};
+	// float light0_position[] = { 0.5, LENGTH - 0.02f, 0.5, 1.0 };
+	float light0_position[] = { pos.x, pos.y, pos.z, 1.0 };
+	// float light0_direction[] = { 0.0, -1.0, 0.0, 1.0};
+	float light0_direction[] = { dir.x, dir.y, dir.z, 1.0};
 
 	// set scene default ambient 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,light0_ambient);
@@ -170,10 +173,41 @@ void display_scene()
 void render_scene()
 {
 	set_viewvolume();
-	set_lights();
+	// set_lights();
 	set_material();
 	display_scene();
 	glFlush();
+}
+
+
+void do_render()
+{
+	if (ray_num == 0)
+	{
+		render_scene();
+		return;
+	}
+
+	glClear(GL_ACCUM_BUFFER_BIT);
+	for (int i = 0; i < ray_num; ++i)
+	{
+		// pick a random light
+		Ray ray = pick_ray();
+		cout << "ray pos: " << ray.pos.x << " " << ray.pos.y << " " << ray.pos.z << endl;
+		cout << "ray dir: " << ray.dir.x << " " << ray.dir.y << " " << ray.dir.z << endl;
+		glm::vec3 white(2.0, 2.0, 2.0);
+		set_lights(ray.pos, white, ray.dir);
+		for (int j = 1; j <= reflect_num; ++j)
+		{
+			if (set_vlp(ray.pos, ray.dir, j))
+			{
+				render_scene();
+				glAccum(GL_ACCUM, 1.0f / ray_num);
+			}
+		}
+	}
+	glAccum(GL_RETURN, 1.0);
+	glutSwapBuffers();
 }
 
 
@@ -196,6 +230,7 @@ void pre_load()
 	// load models
 	load_box();	// load box
 	load_light();	// load light in cornell box
+	generateBoxTri();
 }
 
 
@@ -206,7 +241,7 @@ int main(int argc, char **argv)
 	reflect_num = atoi(argv[2]);
 	initGL(argc, argv);
 	pre_load();
-	glutDisplayFunc(render_scene);
+	glutDisplayFunc(do_render);
 	glutMainLoop();
 
 	return 0;
