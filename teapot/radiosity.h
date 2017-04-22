@@ -16,6 +16,7 @@ typedef struct
 {
 	glm::vec3 pos;
 	glm::vec3 dir;	// unit length vector
+	glm::vec3 color;	// light color
 }	Ray;
 
 
@@ -87,9 +88,11 @@ Ray pick_ray()
 	if (light_dir.y > 0)	{light_dir.y = -light_dir.y;}
 	light_dir = glm::normalize(light_dir);
 
+	glm::vec3 white(2.0, 2.0, 2.0);
 	Ray ray;
 	ray.pos = light_pos;
 	ray.dir = light_dir;
+	ray.color = white;	// light color: white
 
 	return ray;
 }
@@ -145,11 +148,13 @@ bool MTintersection(Triangle tri,
 }
 
 
-bool set_vlp(glm::vec3 origin, glm::vec3 dir, int reflect_id)
+bool find_intersection(Ray current_ray, Ray &new_ray)
 {
+	glm::vec3 origin = current_ray.pos;
+	glm::vec3 dir = current_ray.dir;
 	// find intersection, loop over all the triangles
-	glm::vec3 intersection;
 	glm::vec3 N;
+	glm::vec3 intersection;
 	glm::vec3 color;
 	bool find_intersection = false;
 	for (vector<Triangle>::iterator it = triangle_list.begin(); it != triangle_list.end(); ++it)
@@ -163,34 +168,15 @@ bool set_vlp(glm::vec3 origin, glm::vec3 dir, int reflect_id)
 		}
 	}
 	end_loop: ;
-	if (!find_intersection)	{ cout << "No intersection" << endl;	return false;}
-	cout << "intersection: " << intersection.x << " " << intersection.y << " " << intersection.z << endl;
+	if (!find_intersection)	{ /*cout << "No intersection" << endl;*/	return false;}
 
-	/*
-	// get the reflect direction
 	glm::vec3 V = -dir;
 	glm::vec3 R = -V + 2 * glm::dot(V, N) * N;
-	// attach new OpenGL light at ray/surface intersection
-	// set light colors(diffuse/specular) to surface color
-	float light1_position[] = { intersection.x, intersection.y, intersection.z, 1.0 };
-	float light1_direction[] = { R.x, R.y, R.z, 1.0};
-	float light1_diffuse[] = {color.x, color.y, color.z, 0.0};
-	float light1_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
-	float light1_specular[] = { 1.0, 1.0, 1.0, 0.0 }; 
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,1);
-	glLightfv(GL_LIGHT1,GL_DIFFUSE,light1_diffuse); 
-	glLightfv(GL_LIGHT1,GL_AMBIENT,light1_ambient); 
-	glLightfv(GL_LIGHT1,GL_SPECULAR,light1_specular); 
-	glLightf(GL_LIGHT1,GL_SPOT_EXPONENT,0.1);		// large falloff if surface is shiny
-	glLightf(GL_LIGHT1,GL_SPOT_CUTOFF,180.0);	// spotlight here 
-	glLightf(GL_LIGHT1,GL_CONSTANT_ATTENUATION,1.0); 
-	glLightf(GL_LIGHT1,GL_LINEAR_ATTENUATION,0.2); 
-	glLightf(GL_LIGHT1,GL_QUADRATIC_ATTENUATION,0.01); 
-	glLightfv(GL_LIGHT1,GL_POSITION,light1_position);
-	glLightfv(GL_LIGHT1,GL_SPOT_DIRECTION,light1_direction);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT1);
-	*/
+
+	// set new ray
+	new_ray.pos = intersection;
+	new_ray.dir = R;
+	new_ray.color = color;
 
 	return true;
 }

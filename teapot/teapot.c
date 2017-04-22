@@ -26,9 +26,6 @@
 int ray_num;
 int reflect_num;
 
-// test
-int intersection_num = 0.0;
-
 
 using namespace std;
 
@@ -115,7 +112,7 @@ unsigned int set_shaders(int id)
 }
 
 
-void set_lights(glm::vec3 pos, glm::vec3 color, glm::vec3 dir)
+void set_lights(glm::vec3 pos, glm::vec3 color, glm::vec3 dir, float exp, float cutoff)
 {
 	float light0_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
 	float light0_diffuse[] = { color.x, color.y, color.z, 0.0 }; 
@@ -130,8 +127,8 @@ void set_lights(glm::vec3 pos, glm::vec3 color, glm::vec3 dir)
 	glLightfv(GL_LIGHT0,GL_AMBIENT,light0_ambient); 
 	glLightfv(GL_LIGHT0,GL_DIFFUSE,light0_diffuse); 
 	glLightfv(GL_LIGHT0,GL_SPECULAR,light0_specular); 
-	glLightf(GL_LIGHT0,GL_SPOT_EXPONENT,0.1); 
-	glLightf(GL_LIGHT0,GL_SPOT_CUTOFF,180.0); 
+	glLightf(GL_LIGHT0,GL_SPOT_EXPONENT,exp); 
+	glLightf(GL_LIGHT0,GL_SPOT_CUTOFF,cutoff); 
 	glLightfv(GL_LIGHT0,GL_POSITION,light0_position);
 	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,light0_direction);
 	glEnable(GL_LIGHTING);
@@ -139,10 +136,18 @@ void set_lights(glm::vec3 pos, glm::vec3 color, glm::vec3 dir)
 }
 
 
-void set_material()
+void set_material(int id)
 {
-	float mat_shininess[] = {2};
-	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+	switch (id)
+	{
+		// box material
+		case 0:
+		{
+			float mat_shininess[] = {2};
+			glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+			break;
+		}
+	}
 }
 
 
@@ -154,6 +159,7 @@ void display_scene()
 	glEnableClientState(GL_COLOR_ARRAY);
 	// draw box
 	set_shaders(0);
+	set_material(0);
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_vertices);
 	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), box_normals);
 	glColorPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_colors);
@@ -168,11 +174,9 @@ void display_scene()
 }
 
 
+// add shadow render here
 void render_scene()
 {
-	// set_viewvolume();
-	// set_lights();
-	// set_material();
 	display_scene();
 	glFlush();
 }
@@ -181,7 +185,6 @@ void render_scene()
 void do_render()
 {
 	set_viewvolume();
-	set_material();
 
 	if (ray_num == 0)
 	{
@@ -189,27 +192,48 @@ void do_render()
 		return;
 	}
 
-	// glClear(GL_ACCUM_BUFFER_BIT);
+	glClear(GL_ACCUM_BUFFER_BIT);
 	for (int i = 0; i < ray_num; ++i)
 	{
-		// pick a random light
-		Ray ray = pick_ray();
-		// cout << "ray pos: " << ray.pos.x << " " << ray.pos.y << " " << ray.pos.z << endl;
-		// cout << "ray dir: " << ray.dir.x << " " << ray.dir.y << " " << ray.dir.z << endl;
-		glm::vec3 white(2.0, 2.0, 2.0);
-		set_lights(ray.pos, white, ray.dir);
+		// select random ray and find intersection, if no intersection: try new random ray
+		cout << "ray id: " << i << endl;
+		Ray light_ray;
+		Ray ray;
+		bool find = false;
+		do 
+		{
+			// pick a random light
+			cout << "pick ray..." << endl;
+			light_ray = pick_ray();
+			find = find_intersection(light_ray, ray);
+		} while (!find);
+		cout << "main light ray: " << endl;
+		cout << "\t | pos: " << light_ray.pos.x << " " << light_ray.pos.y << " " << light_ray.pos.z << endl;
+		cout << "\t | dir: " << light_ray.dir.x << " " << light_ray.dir.y << " " << light_ray.dir.z << endl;
+		cout << "reflect ray: " << endl;
+		cout << "\t | pos: " << ray.pos.x << " " << ray.pos.y << " " << ray.pos.z << endl;
+		cout << "\t | dir: " << ray.dir.x << " " << ray.dir.y << " " << ray.dir.z << endl;
+		cout << "------------------------------------------" << endl;
+
+		// set main light
+		set_lights(light_ray.pos, light_ray.color, light_ray.dir, 0.1, 180.0);
+
+		// render the scene
+		render_scene();
+		glAccum(GL_ACCUM, 1.0f / ray_num);
+
+		/*
 		for (int j = 1; j <= reflect_num; ++j)
 		{
-			if (set_vlp(ray.pos, ray.dir, j))
-			{
-				intersection_num++;
+				// set vlp
+				// set_lights(ray.pos, ray.color, ray.dir);
 				render_scene();
 				// glAccum(GL_ACCUM, 1.0f / ray_num);
-			}
 		}
+		*/
 	}
-	// glAccum(GL_RETURN, 1.0);
-	// glutSwapBuffers();
+	glAccum(GL_RETURN, 1.0);
+	glutSwapBuffers();
 }
 
 
