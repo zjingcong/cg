@@ -170,13 +170,13 @@ void display_scene()
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_vertices);
 	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), box_normals);
 	glColorPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_colors);
-	glDrawElements(GL_QUADS, 3 * box_face_num * 4, GL_UNSIGNED_INT, box_faces);
+	glDrawElements(GL_QUADS, box_face_num * 4, GL_UNSIGNED_INT, box_faces);
 	// draw light
 	set_shaders(1);
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), light_vertices);
 	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), light_normals);
 	glColorPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), light_colors);
-	glDrawElements(GL_QUADS, 3 * 4, GL_UNSIGNED_INT, light_faces);
+	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, light_faces);
 	glFlush();
 }
 

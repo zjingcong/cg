@@ -165,10 +165,10 @@ void load_light()
 	GLfloat colors[] = 
 	{
 		// white
-		2.0, 2.0, 2.0, 
-		2.0, 2.0, 2.0, 
-		2.0, 2.0, 2.0, 
-		2.0, 2.0, 2.0
+		1.0, 1.0, 1.0, 
+		1.0, 1.0, 1.0, 
+		1.0, 1.0, 1.0, 
+		1.0, 1.0, 1.0
 	};
 
 	light_vertices =  (GLfloat *)calloc(4, 3 * sizeof(GLfloat));
