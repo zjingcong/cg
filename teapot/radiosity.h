@@ -6,6 +6,7 @@
 # include <glm/gtx/random.hpp>	// glm random
 # include <vector>
 # include <iostream>
+# include <cmath>
 
 # include "box.h"
 
@@ -78,18 +79,47 @@ void generateBoxTri()
 }
 
 
+float phi(int b, int i)
+{
+	float x, f;
+	x = 0.0;
+	f = 1.0f / float(b);
+	while (i)
+	{
+		x += f * float(i % b);
+		i /= b;
+		f *= 1.0f / float(b);
+	}
+
+	return x;
+}
+
+
+glm::vec3 generate_sphere_point(int i)
+{
+	float az = 2 * M_PI * phi(2, i);
+	float el = asin(phi(3, i));
+	float x = -sin(az) * cos(el);
+	float y = sin(el);
+	float z = cos(az) * cos(el);
+	glm::vec3 p;
+	p.x = x;
+	p.y = y;
+	p.z = z;
+
+	return p;
+}
+
+
 // pick a point at random on an area light
-// ***** modify later *****
-Ray pick_ray()
+Ray pick_ray(int i)
 {
 	// pick a point at random on the area light
 	glm::vec2 rand_2d = glm::linearRand(glm::vec2(0.3f * LENGTH), glm::vec2(0.7f * LENGTH));
 	glm::vec3 light_pos = glm::vec3(rand_2d.x, LENGTH - 0.02f, rand_2d.y);
-	// shoot a ray from the point in random direction 
-	// (modify later)
-	glm::vec3 light_dir = glm::sphericalRand(1.0f);
-	if (light_dir.y > 0)	{light_dir.y = -light_dir.y;}
-	light_dir = glm::normalize(light_dir);
+	// shoot a ray from the point in random direction
+	glm::vec3 light_dir = generate_sphere_point(i);
+	light_dir = -glm::normalize(light_dir);
 
 	glm::vec3 white(1.0, 1.0, 1.0);
 	Ray ray;
@@ -186,7 +216,7 @@ bool find_intersection(Ray current_ray, Ray &new_ray)
 	new_ray.dir = R;
 	new_ray.color = color;
 	new_ray.exp = falloff;
-	new_ray.cutoff = 20.0;
+	new_ray.cutoff = 180.0;	// make vlp spotlight here
 
 	return true;
 }

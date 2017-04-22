@@ -186,7 +186,6 @@ void display_scene()
 void render_scene()
 {
 	display_scene();
-	glFlush();
 }
 
 
@@ -203,6 +202,7 @@ void do_render()
 	}
 
 	glClear(GL_ACCUM_BUFFER_BIT);
+	int r = 0;
 	for (int i = 0; i < ray_num; ++i)
 	{
 		// select random ray and find intersection, if no intersection: try new random ray
@@ -214,8 +214,9 @@ void do_render()
 		{
 			// pick a random light
 			// cout << "pick ray..." << endl;
-			light_ray = pick_ray();
+			light_ray = pick_ray(r);
 			find = find_intersection(light_ray, ray);
+			r++;
 		} while (!find);
 
 		/*		
@@ -228,7 +229,7 @@ void do_render()
 		*/
 
 		// set main light
-		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color, light_ray.dir, light_ray.exp, light_ray.cutoff);
+		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color / float(reflect_num), light_ray.dir, light_ray.exp, light_ray.cutoff);
 		// set vlp
 		// note: large falloff if surface is shiny, make it spotlight
 		Ray current_ray = ray;
@@ -241,7 +242,7 @@ void do_render()
 			set_lights(GL_LIGHT1, current_ray.pos, att * current_ray.color, current_ray.dir, current_ray.exp, current_ray.cutoff);
 			// render the scene
 			render_scene();
-			glAccum(GL_ACCUM, 1.0f / ray_num);
+			glAccum(GL_ACCUM, 1.0f / (ray_num));
 
 			// set the next ray
 			Ray new_ray;

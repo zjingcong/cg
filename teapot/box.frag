@@ -8,6 +8,7 @@ vec4 CalSpotLight(int i)
 {
 	vec4 ambientColor, diffuseColor, specColor, tcolor;
 	vec3 P, N, L, V, H;
+	// vec4 box_spec = vec4(1.0, 1.0, 1.0, 1.0);
 
 	P = ec_vposition;
 	N = normalize(ec_vnormal);
@@ -40,6 +41,7 @@ vec4 CalSpotLight(int i)
 	// calculate color
 	ambientColor = gl_LightSource[i].ambient;
 	diffuseColor = gl_LightSource[i].diffuse * gl_Color * diff;
+	// specColor = gl_LightSource[i].specular * box_spec * spec;
 	specColor = gl_LightSource[i].specular * spec;
 	diffuseColor *= (attenuation * spot);
 	specColor *= (attenuation * spot);
@@ -59,6 +61,5 @@ void main()
 		fragColor += CalSpotLight(i);
 	}
 	gl_FragColor = fragColor;
-	// gl_FragColor = gl_Color;
 }
 
