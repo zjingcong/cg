@@ -1,3 +1,4 @@
+
 varying vec3 ec_vnormal, ec_vposition;
 
 void main()

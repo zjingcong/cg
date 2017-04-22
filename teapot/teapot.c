@@ -80,8 +80,15 @@ unsigned int set_shaders(int id)
 	{
 		case 0:
 		{
-			 vs_str = load_shader_file("box.vert");
-       fs_str = load_shader_file("box.frag");
+			vs_str = load_shader_file("box.vert");
+      fs_str = load_shader_file("box.frag");
+			break;
+		}
+		case 1:
+		{
+			vs_str = load_shader_file("light.vert");
+      fs_str = load_shader_file("light.frag");
+			break;
 		}
 	}
 
@@ -145,17 +152,17 @@ void display_scene()
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	// draw box
+	set_shaders(0);
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_vertices);
 	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), box_normals);
 	glColorPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_colors);
 	glDrawElements(GL_QUADS, 3 * 20, GL_UNSIGNED_INT, box_faces);
-	set_shaders(0);
 	// draw light
+	set_shaders(1);
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), light_vertices);
 	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), light_normals);
 	glColorPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), light_colors);
 	glDrawElements(GL_QUADS, 3 * 4, GL_UNSIGNED_INT, light_faces);
-	set_shaders(0);
 	glFlush();
 }
 
