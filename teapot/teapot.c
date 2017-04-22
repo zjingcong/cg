@@ -211,36 +211,44 @@ void do_render()
 		do 
 		{
 			// pick a random light
-			cout << "pick ray..." << endl;
+			// cout << "pick ray..." << endl;
 			light_ray = pick_ray();
 			find = find_intersection(light_ray, ray);
 		} while (!find);
+
+		/*		
 		cout << "main light ray: " << endl;
 		cout << "\t | pos: " << light_ray.pos.x << " " << light_ray.pos.y << " " << light_ray.pos.z << endl;
 		cout << "\t | dir: " << light_ray.dir.x << " " << light_ray.dir.y << " " << light_ray.dir.z << endl;
 		cout << "reflect ray: " << endl;
 		cout << "\t | pos: " << ray.pos.x << " " << ray.pos.y << " " << ray.pos.z << endl;
 		cout << "\t | dir: " << ray.dir.x << " " << ray.dir.y << " " << ray.dir.z << endl;
-		cout << "------------------------------------------" << endl;
+		*/
 
 		// set main light
 		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color, light_ray.dir, 0.1, 180.0);
 		// set other lights
-		set_lights(GL_LIGHT1, ray.pos, ray.color, ray.dir, 0.1, 180.0);
-
-		// render the scene
-		render_scene();
-		glAccum(GL_ACCUM, 1.0f / ray_num);
-
-		/*
-		for (int j = 1; j <= reflect_num; ++j)
+		Ray current_ray = ray;
+		for (int i = 1; i <= reflect_num; ++i)
 		{
-				// set vlp
-				// set_lights(ray.pos, ray.color, ray.dir);
-				render_scene();
-				// glAccum(GL_ACCUM, 1.0f / ray_num);
+			// cout << "reflect ray..." << endl;
+			// set light for current_ray
+			set_lights(GL_LIGHT1, current_ray.pos, current_ray.color, current_ray.dir, 0.1, 180.0);
+			// render the scene
+			render_scene();
+			glAccum(GL_ACCUM, 1.0f / ray_num);
+
+			// set the next ray
+			Ray new_ray;
+			bool find_new_ray = find_intersection(current_ray, new_ray);
+			if (!find_new_ray)
+			{
+				goto end_loop;
+			}
+			current_ray = new_ray;
 		}
-		*/
+		end_loop: ;
+		// cout << "------------------------------------------" << endl;
 	}
 	glAccum(GL_RETURN, 1.0);
 	glutSwapBuffers();
