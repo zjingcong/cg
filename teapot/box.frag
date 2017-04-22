@@ -25,12 +25,24 @@ vec4 CalSpotLight(int i)
 	float kq = 0.01;
 	float d = length(gl_LightSource[i].position - P);
 	float attenuation = 1.0f / (kc + kl * d + kq * d * d);
+
+	float lightAngle = degrees(acos(max(dot((-L), normalize(gl_LightSource[i].spotDirection)), 0.0)));
+	// cutoff
+	float cutoff = gl_LightSource[i].spotCutoff;
+	// spot falloff
+	float spot;	
+	// float spot = pow(max(dot((-L), normalize(gl_LightSource[i].spotDirection)), 0.0), gl_LightSource[i].spotExponent);
+	// make soft edge
+	if (lightAngle > cutoff)
+		{spot = clamp(pow(cos((lightAngle - cutoff) * PI / 180.0), gl_LightSource[i].spotExponent), 0.0, 1.0);}
+	else	{spot = 1.0;}
+
 	// calculate color
 	ambientColor = gl_LightSource[i].ambient;
 	diffuseColor = gl_LightSource[i].diffuse * gl_Color * diff;
 	specColor = gl_LightSource[i].specular * spec;
-	diffuseColor *= (attenuation);
-	specColor *= (attenuation);
+	diffuseColor *= (attenuation * spot);
+	specColor *= (attenuation * spot);
 
 	return (ambientColor + diffuseColor + specColor);
 }
