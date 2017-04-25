@@ -8,7 +8,7 @@
 # include <iostream>
 # include <cmath>
 
-# include "box.h"
+# include "scene.h"
 
 
 using namespace std;
@@ -33,15 +33,18 @@ typedef struct
 }	Triangle;
 
 
-vector<Triangle> triangle_list;
-float box_falloff = 0.1;	// spotlight falloff for vlp on box
+vector<Triangle> box_triangle_list;
+vector<Triangle> teapot_triangle_list;
+float box_falloff = 20.0;	// spotlight falloff for vlp on box
+bool HIT_TEAPOT = false;
 
 
 void generateBoxTri()
 {
-	glm::vec3 point_list[box_face_num * 4], normal_list[box_face_num * 4], color_list[box_face_num * 4];
+	int face_num = box_face_num;
+	glm::vec3 point_list[face_num * 4], normal_list[face_num * 4], color_list[face_num * 4];
 	// get all the point
-	for (int i = 0; i < box_face_num * 4; ++i)
+	for (int i = 0; i < face_num * 4; ++i)
 	{
 		glm::vec3 point, normal, color;
 		point.x = box_vertices[i * 3];
@@ -57,7 +60,8 @@ void generateBoxTri()
 		normal_list[i] = glm::normalize(normal);
 		color_list[i] = color;
 	}
-	for (int i = 0; i < box_face_num; ++i)
+
+	for (int i = 0; i < face_num; ++i)
 	{
 		Triangle tri1, tri2;
 
@@ -73,8 +77,46 @@ void generateBoxTri()
 		tri2.N = normal_list[i * 4];
 		tri2.C = color_list[i * 4];
 
-		triangle_list.push_back(tri1);
-		triangle_list.push_back(tri2);
+		box_triangle_list.push_back(tri1);
+		box_triangle_list.push_back(tri2);
+	}
+}
+
+
+void generateTeapotTri()
+{
+	int face_num = teapot_face_count;
+	glm::vec3 point_list[face_num * 4], normal_list[face_num * 4];
+	// get all the point
+	for (int i = 0; i < face_num * 4; ++i)
+	{
+		glm::vec3 point, normal;
+		point.x = teapot_vertices[i * 3];
+		point.y = teapot_vertices[i * 3 + 1];
+		point.z = teapot_vertices[i * 3 + 2];
+		normal.x = teapot_normals[i * 3];
+		normal.y = teapot_normals[i * 3 + 1];
+		normal.z = teapot_normals[i * 3 + 2];
+		point_list[i] = point;
+		normal_list[i] = glm::normalize(normal);
+	}
+
+	for (int i = 0; i < face_num; ++i)
+	{
+		Triangle tri1, tri2;
+
+		tri1.V0 = point_list[i * 4];
+		tri1.V1 = point_list[i * 4 + 1];
+		tri1.V2 = point_list[i * 4 + 2];
+		tri1.N = normal_list[i * 4];
+
+		tri2.V0 = point_list[i * 4 + 1];
+		tri2.V1 = point_list[i * 4 + 2];
+		tri2.V2 = point_list[i * 4 + 3];
+		tri2.N = normal_list[i * 4];
+
+		teapot_triangle_list.push_back(tri1);
+		teapot_triangle_list.push_back(tri2);
 	}
 }
 
@@ -115,8 +157,8 @@ glm::vec3 generate_sphere_point(int i)
 Ray pick_ray(int i)
 {
 	// pick a point at random on the area light
-	glm::vec2 rand_2d = glm::linearRand(glm::vec2(0.3f * LENGTH), glm::vec2(0.7f * LENGTH));
-	glm::vec3 light_pos = glm::vec3(rand_2d.x, LENGTH - 0.02f, rand_2d.y);
+	glm::vec2 rand_2d = glm::linearRand(glm::vec2(-0.8), glm::vec2(0.8));
+	glm::vec3 light_pos = glm::vec3(rand_2d.x, 2.0f * LENGTH - 0.02f, rand_2d.y);
 	// shoot a ray from the point in random direction
 	glm::vec3 light_dir = generate_sphere_point(i);
 	light_dir = -glm::normalize(light_dir);
@@ -127,7 +169,7 @@ Ray pick_ray(int i)
 	ray.dir = light_dir;
 	ray.color = white;	// light color: white
 	ray.exp = 2.0;	// light falloff
-	ray.cutoff = 30;
+	ray.cutoff = 180.0;
 
 	return ray;
 }
@@ -193,19 +235,34 @@ bool find_intersection(Ray current_ray, Ray &new_ray)
 	glm::vec3 color;
 	float falloff;
 	bool find_intersection = false;
+
+	HIT_TEAPOT = false;
+	// find intersection with teapot
+	for (vector<Triangle>::iterator it = teapot_triangle_list.begin(); it != teapot_triangle_list.end(); ++it)
+	{
+		Triangle tri = *it;
+		if (MTintersection(tri, origin, dir, intersection, N))
+		{
+			HIT_TEAPOT = true;
+			goto end_teapot_loop;
+		}
+	}
+	end_teapot_loop: ;
+	// if (find_intersection)	{return false;}	// ray intersect with teapot
+
 	// find intersection with cornell box
-	for (vector<Triangle>::iterator it = triangle_list.begin(); it != triangle_list.end(); ++it)
+	for (vector<Triangle>::iterator it = box_triangle_list.begin(); it != box_triangle_list.end(); ++it)
 	{
 		Triangle tri = *it;
 		if (MTintersection(tri, origin, dir, intersection, N))
 		{
 			find_intersection = true;
 			color = tri.C;
-			falloff = 20.0;
-			goto end_loop;
+			falloff = box_falloff;
+			goto end_box_loop;
 		}
 	}
-	end_loop: ;
+	end_box_loop: ;
 	if (!find_intersection)	{ /*cout << "No intersection" << endl;*/	return false;}
 
 	glm::vec3 V = -dir;

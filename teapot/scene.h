@@ -1,5 +1,5 @@
-# ifndef _BOX_H_
-# define _BOX_H_
+# ifndef _SCENE_H_
+# define _SCENE_H_
 
 # include <iostream>
 # include <stdio.h>
@@ -12,7 +12,7 @@
 # include <vector>
 # include <cstring>
 
-# define LENGTH 2.0
+# define LENGTH 2.5
 
 using namespace std;
 
@@ -20,6 +20,7 @@ GLfloat *box_vertices;
 GLfloat *box_normals;
 GLuint *box_faces;
 GLfloat *box_colors;
+int box_face_num = 5;
 
 GLfloat *light_vertices;
 GLfloat *light_normals;
@@ -29,10 +30,9 @@ GLfloat *light_colors;
 GLfloat *teapot_vertices;
 GLfloat *teapot_normals;
 GLuint *teapot_faces;
-int teapot_vertex_count=0;
-int teapot_face_count=0;
+int teapot_vertex_count = 0;
+int teapot_face_count = 0;
 
-int box_face_num = 5;
 
 void load_obj(const char *file_name){
     FILE *fptr;
@@ -121,35 +121,32 @@ void load_box()
 	GLfloat vertices[] =
 	{
 		// left
-		0.0, 0.0, 0.0,
-		0.0, LENGTH, 0.0,
-		0.0, LENGTH, LENGTH,
-		0.0, 0.0, LENGTH,
+		-LENGTH, 2.0f * LENGTH, -LENGTH, 
+		-LENGTH, 2.0f * LENGTH, LENGTH, 
+		-LENGTH, 0.0, LENGTH, 
+		-LENGTH, 0.0, -LENGTH, 
 		// right
-		LENGTH, LENGTH, LENGTH,
-		LENGTH, LENGTH, 0.0,
-		LENGTH, 0.0, 0.0,
-		LENGTH, 0.0, LENGTH,
+		LENGTH, 2.0f * LENGTH, LENGTH, 
+		LENGTH, 2.0f * LENGTH, -LENGTH, 
+		LENGTH, 0.0, -LENGTH, 
+		LENGTH, 0.0, LENGTH, 
 		// top
-		0.0, LENGTH, 0.0,
-		LENGTH, LENGTH, 0.0,
-		LENGTH, LENGTH, LENGTH,
-		0.0, LENGTH, LENGTH,
+		-LENGTH, 2.0f * LENGTH, LENGTH, 
+		-LENGTH, 2.0f * LENGTH, -LENGTH, 
+		LENGTH, 2.0f * LENGTH, -LENGTH, 
+		LENGTH, 2.0f * LENGTH, LENGTH, 
 		// bottom
-		0.0, 0.0, 0.0,
-		0.0, 0.0, LENGTH,
-		LENGTH, 0.0, LENGTH,
-		LENGTH, 0.0, 0.0,
+		LENGTH, 0.0, -LENGTH, 
+		-LENGTH, 0.0, -LENGTH, 
+		-LENGTH, 0.0, LENGTH, 
+		LENGTH, 0.0, LENGTH, 
 		// back
-		LENGTH, LENGTH, 0.0,
-		0.0, LENGTH, 0.0,
-		0.0, 0.0, 0.0,
-		LENGTH, 0.0, 0.0,
+		LENGTH, 2.0f * LENGTH, -LENGTH, 
+		-LENGTH, 2.0f * LENGTH, -LENGTH, 
+		-LENGTH, 0.0, -LENGTH, 
+		LENGTH, 0.0, -LENGTH
 		// front: for test
-		0.0, LENGTH, LENGTH,
-		LENGTH, LENGTH, LENGTH,
-		LENGTH, 0.0, LENGTH,
-		0.0, 0.0, LENGTH
+
 	};
 
 	GLfloat normals[] =
@@ -237,13 +234,14 @@ void load_box()
 
 void load_light()
 {
-	GLfloat y = LENGTH - 0.01f;
+	GLfloat y = 2.0f * LENGTH - 0.01f;
+	float dx = 0.8;
 	GLfloat vertices[] =
 	{
-		0.3f * LENGTH, y, 0.3f * LENGTH,
-		0.7f * LENGTH, y, 0.3f * LENGTH,
-		0.7f * LENGTH, y, 0.7f * LENGTH,
-		0.3f * LENGTH, y, 0.7f * LENGTH
+		dx, y, dx, 
+		-dx, y, dx, 
+		-dx, y, -dx, 
+		dx, y, -dx
 	};
 
 	GLfloat normals[] =

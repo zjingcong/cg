@@ -17,7 +17,7 @@
 # include <fstream>
 
 # include "shadow.h"
-# include "box.h"
+# include "scene.h"
 # include "radiosity.h"
 
 # define WIN_X 1280
@@ -29,7 +29,7 @@ int reflect_num;
 float reflect_att = 0.7;	// attenuation for each reflection
 GLuint box_shader, light_shader, teapot_shader;
 
-glm::vec3 eye(1.0, 1.0, 3.92);
+glm::vec3 eye(0.0, 2.5, 7.3);
 glm::vec3 dir(0.0, 0.0, -1.0);
 
 
@@ -131,13 +131,13 @@ void set_scene_ambient()
 
 		// fill light
 	GLuint gl_light_id = GL_LIGHT7;
-    glm::vec3 pos(LENGTH / 2.0, -20, LENGTH / 2.0);
+    glm::vec3 pos(0.0, -20, 0.0);
     glm::vec3 dir(0.0, 1.0, 0.0);
     float exp = 0.1;
     float cutoff = 180.0;
 
 	float light_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
-	float light_diffuse[] = { 0.05, 0.05, 0.05, 0.0 };
+	float light_diffuse[] = { 0.08, 0.08, 0.08, 0.0 };
 	float light_specular[] = { 0.0, 0.0, 0.0, 0.0 };
 	float light_position[] = { pos.x, pos.y, pos.z, 1.0 };
 	float light_direction[] = { dir.x, dir.y, dir.z, 1.0};
@@ -231,8 +231,6 @@ void draw_teapot(){
     glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), teapot_normals);
 
     glPushMatrix();
-    glTranslatef(1.0, 0.0, 1.0);
-    glScalef(0.4,0.4,0.4);
     glRotatef(-120, 0.0, 1.0, 0.0);
     glDrawElements(GL_QUADS, 4 * teapot_face_count, GL_UNSIGNED_INT, teapot_faces);
     glPopMatrix();
@@ -283,7 +281,7 @@ void save_matrix(glm::vec3 eye, glm::vec3 view)
 // add shadow render here
 void do_shadow_map(Ray ray)
 {
-    float distance = 2.8;
+    float distance = 7.0;
     glm::vec3 c_eye = ray.pos - distance * ray.dir;
 
     glBindFramebufferEXT(GL_FRAMEBUFFER,1);
@@ -324,7 +322,7 @@ void do_render()
 	if (ray_num == 0)
 	{
         Ray main_ray;
-        main_ray.pos = glm::vec3(1.0, LENGTH - 0.02f, 1.0);
+        main_ray.pos = glm::vec3(0.0, 2.0f * LENGTH - 0.02f, 0.0);
         //main_ray.pos = glm::vec3(0.836825, 1.98, 1.09011);
         main_ray.color = glm::vec3(1.0, 1.0, 1.0);
         main_ray.dir = glm::vec3(0.0, -1.0, 0.00001);
@@ -355,11 +353,6 @@ void do_render()
 			r++;
 		} while (!find);
 
-
-		cout << "main light ray: " << endl;
-		cout << "\t | pos: " << light_ray.pos.x << " " << light_ray.pos.y << " " << light_ray.pos.z << endl;
-		cout << "\t | dir: " << light_ray.dir.x << " " << light_ray.dir.y << " " << light_ray.dir.z << endl;
-
 		// set main light
 		do_shadow_map(light_ray);
 		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color / float(reflect_num), light_ray.dir, light_ray.exp, light_ray.cutoff);
@@ -373,7 +366,7 @@ void do_render()
 			// set light for current_ray
 			att *= reflect_att;
 
-			set_lights(GL_LIGHT1, current_ray.pos, att * current_ray.color, current_ray.dir, current_ray.exp, current_ray.cutoff);
+			if (!HIT_TEAPOT)	{set_lights(GL_LIGHT1, current_ray.pos, att * current_ray.color, current_ray.dir, current_ray.exp, current_ray.cutoff);}
 			// render the scene
 			render_scene();
 			glAccum(GL_ACCUM, 1.0f / (ray_num));
@@ -381,6 +374,7 @@ void do_render()
 			// set the next ray
 			Ray new_ray;
 			bool find_new_ray = find_intersection(current_ray, new_ray);
+			if (HIT_TEAPOT)	{goto end_loop;}
 			if (!find_new_ray)
 			{
 				goto end_loop;
@@ -414,8 +408,10 @@ void pre_load()
 	// load models
 	load_box();	// load box
 	load_light();	// load light in cornell box
-	generateBoxTri();
-	load_obj("/home/xiaotoz/Documents/605/project3/cg/teapot/teapot.obj");	// get triangles for the box
+	load_obj("teapot.obj");	// get triangles for the box
+	// generate triangles from quads for intersection finding
+	generateBoxTri();	// generate box triangles
+	generateTeapotTri();	// generate teapot triangles
 }
 
 
