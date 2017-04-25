@@ -29,7 +29,7 @@ int reflect_num;
 float reflect_att = 0.7;	// attenuation for each reflection
 GLuint box_shader, light_shader, teapot_shader;
 
-glm::vec3 eye(1.0, 0.1, 1.92);
+glm::vec3 eye(1.0, 1.0, 3.92);
 glm::vec3 dir(0.0, 0.0, -1.0);
 
 
@@ -250,7 +250,7 @@ void save_matrix(glm::vec3 eye, glm::vec3 view)
     glScalef(0.5,0.5,0.5);
     glTranslatef(1.0,1.0,1.0);
     //gluPerspective(45.0,(float)(WINDOW_WIDTH)/(float)(WINDOW_HEIGHT),0.1,20.0);
-    gluPerspective(90.0,(float)(WINDOW_WIDTH)/(float)(WINDOW_HEIGHT),0.1,20.0);
+    gluPerspective(120.0,(float)(WINDOW_WIDTH)/(float)(WINDOW_HEIGHT),0.1,20.0);
     gluLookAt(eye.x,eye.y,eye.z,view.x,view.y,view.z,0.0,1.0,0.0);
 }
 
@@ -260,7 +260,7 @@ void do_shadow_map(Ray ray)
     glBindFramebufferEXT(GL_FRAMEBUFFER,1);
     glUseProgram(0);
 
-    set_viewvolume(ray.pos,ray.dir,90.0);
+    set_viewvolume(ray.pos,ray.dir,120.0);
     //set_lights(GL_LIGHT0, ray.pos, ray.color, ray.dir, ray.exp, ray.cutoff);
 	//draw_box();
 	draw_floor();
@@ -277,6 +277,7 @@ void do_shadow_map(Ray ray)
 
 void render_scene()
 {
+	glUseProgram(box_shader);
     //set_lights(GL_LIGHT0, ray.pos, ray.color, ray.dir, ray.exp, ray.cutoff);
     draw_box();
     //draw_floor();
