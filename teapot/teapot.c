@@ -16,6 +16,7 @@
 # include <string>
 # include <fstream>
 
+# include "shadow.h"
 # include "box.h"
 # include "radiosity.h"
 
@@ -26,6 +27,10 @@
 int ray_num;
 int reflect_num;
 float reflect_att = 0.7;	// attenuation for each reflection
+GLuint box_shader, light_shader, teapot_shader;
+
+glm::vec3 eye(1.0, 0.1, 1.92);
+glm::vec3 dir(0.0, 0.0, -1.0);
 
 
 using namespace std;
@@ -66,15 +71,20 @@ unsigned int set_shaders(int id)
 		case 0:
 		{
 			vs_str = load_shader_file("box.vert");
-      fs_str = load_shader_file("box.frag");
+            fs_str = load_shader_file("box.frag");
 			break;
 		}
 		case 1:
 		{
 			vs_str = load_shader_file("light.vert");
-      fs_str = load_shader_file("light.frag");
+            fs_str = load_shader_file("light.frag");
 			break;
 		}
+        case 2:
+        {
+            vs_str = load_shader_file("teapot.vert");
+            fs_str = load_shader_file("teapot.frag");
+        }
 	}
 
 	const char *vs = vs_str.c_str();
@@ -96,19 +106,16 @@ unsigned int set_shaders(int id)
 }
 
 
-void set_viewvolume()
+void set_viewvolume(glm::vec3 eye, glm::vec3 dir, GLfloat fov)
 {
-	glm::vec3 eye(0.5, 0.5, 1.96);
-	// glm::vec3 eye(0.5, 0.5, 0.05);
-	// glm::vec3 view(0.0, 0.0, 0.5);
-	glm::vec3 view(0.5, 0.5, 0.0);
+    glm::vec3 view = eye + dir;
 	glm::vec3 up(0.0, 1.0, 0.0);
 
-	// specify size and shape of view volume 
+	// specify size and shape of view volume
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0, float(WIN_X) / WIN_Y, 0.1, 20.0);
-	// specify position for view volume 
+	gluPerspective(fov, (float)(WIN_X) / (float)(WIN_Y), 0.1, 20.0);
+	// specify position for view volume
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(eye.x,eye.y,eye.z,view.x,view.y,view.z,up.x,up.y,up.z);
@@ -118,7 +125,7 @@ void set_viewvolume()
 void set_scene_ambient()
 {
 	float scene_ambient[] = {0.0, 0.0, 0.0, 0.0};
-	// set scene default ambient 
+	// set scene default ambient
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, scene_ambient);
 }
 
@@ -126,17 +133,17 @@ void set_scene_ambient()
 void set_lights(unsigned int gl_light_id, glm::vec3 pos, glm::vec3 color, glm::vec3 dir, float exp, float cutoff)
 {
 	float light_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
-	float light_diffuse[] = { color.x, color.y, color.z, 0.0 }; 
-	float light_specular[] = { 1.0, 1.0, 1.0, 0.0 }; 
+	float light_diffuse[] = { color.x, color.y, color.z, 0.0 };
+	float light_specular[] = { 1.0, 1.0, 1.0, 0.0 };
 	float light_position[] = { pos.x, pos.y, pos.z, 1.0 };
 	float light_direction[] = { dir.x, dir.y, dir.z, 1.0};
 
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,1); 
-	glLightfv(gl_light_id, GL_AMBIENT, light_ambient); 
-	glLightfv(gl_light_id, GL_DIFFUSE, light_diffuse); 
-	glLightfv(gl_light_id, GL_SPECULAR, light_specular); 
-	glLightf(gl_light_id, GL_SPOT_EXPONENT, exp); 
-	glLightf(gl_light_id, GL_SPOT_CUTOFF, cutoff); 
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,1);
+	glLightfv(gl_light_id, GL_AMBIENT, light_ambient);
+	glLightfv(gl_light_id, GL_DIFFUSE, light_diffuse);
+	glLightfv(gl_light_id, GL_SPECULAR, light_specular);
+	glLightf(gl_light_id, GL_SPOT_EXPONENT, exp);
+	glLightf(gl_light_id, GL_SPOT_CUTOFF, cutoff);
 	glLightfv(gl_light_id, GL_POSITION, light_position);
 	glLightfv(gl_light_id, GL_SPOT_DIRECTION, light_direction);
 	glEnable(GL_LIGHTING);
@@ -155,25 +162,77 @@ void set_material(int id)
 			glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 			break;
 		}
+		// teapot meterial
+		case 1:
+		{
+            float mat_ambient[] = {0.021500, 0.174500, 0.021500, 0.550000};
+            float mat_diffuse[] = {0.075680, 0.614240, 0.075680, 0.550000};
+            float mat_specular[] = {0.633000, 0.727811, 0.633000, 0.550000};
+            float mat_shininess[] = {76.800003};
+
+            glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,mat_ambient);
+            glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,mat_diffuse);
+            glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,mat_specular);
+            glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,mat_shininess);
+            break;
+		}
 	}
 }
 
 
-void display_scene()
+void draw_box()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	// draw box
-	set_shaders(0);
+	//set_shaders(0);
 	set_material(0);
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_vertices);
 	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), box_normals);
 	glColorPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_colors);
 	glDrawElements(GL_QUADS, box_face_num * 4, GL_UNSIGNED_INT, box_faces);
+}
+
+void draw_teapot(){
+	// draw teapot
+	set_material(1);
+    glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), teapot_vertices);
+    glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), teapot_normals);
+
+    glPushMatrix();
+    glTranslatef(1.0,0.0,1.0);
+    glScalef(0.4,0.4,0.4);
+    glRotatef(-120,0.0,1.0,0.0);
+    glDrawElements(GL_QUADS, 4 * teapot_face_count, GL_UNSIGNED_INT, teapot_faces);
+    glPopMatrix();
+    glFlush();
+    }
+
+void draw_floor(){
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    set_material(0);
+    glBegin(GL_QUADS);
+    glNormal3f(0.0,2.0,0.0);
+	glVertex3f(2.0,0.0,0.0);
+	glVertex3f(2.0,0.0,2.0);
+	glVertex3f(0.0,0.0,2.0);
+	glVertex3f(0.0,0.0,0.0);
+	glEnd();
+    glFlush();
+
+}
+
+
+
+void draw_light(){
 	// draw light
-	set_shaders(1);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glUseProgram(light_shader);
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), light_vertices);
 	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), light_normals);
 	glColorPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), light_colors);
@@ -181,22 +240,69 @@ void display_scene()
 	glFlush();
 }
 
+void save_matrix(glm::vec3 eye, glm::vec3 view)
+{
+    glMatrixMode(GL_TEXTURE);
+    // This must match the unit used in the vertex shader.
+    glActiveTexture(GL_TEXTURE7);
+    glLoadIdentity();
+    glTranslatef(0.0,0.0,-0.00005);
+    glScalef(0.5,0.5,0.5);
+    glTranslatef(1.0,1.0,1.0);
+    //gluPerspective(45.0,(float)(WINDOW_WIDTH)/(float)(WINDOW_HEIGHT),0.1,20.0);
+    gluPerspective(90.0,(float)(WINDOW_WIDTH)/(float)(WINDOW_HEIGHT),0.1,20.0);
+    gluLookAt(eye.x,eye.y,eye.z,view.x,view.y,view.z,0.0,1.0,0.0);
+}
 
 // add shadow render here
+void do_shadow_map(Ray ray)
+{
+    glBindFramebufferEXT(GL_FRAMEBUFFER,1);
+    glUseProgram(0);
+
+    set_viewvolume(ray.pos,ray.dir,90.0);
+    //set_lights(GL_LIGHT0, ray.pos, ray.color, ray.dir, ray.exp, ray.cutoff);
+	//draw_box();
+	draw_floor();
+	draw_teapot();
+	glBindFramebufferEXT(GL_FRAMEBUFFER,0);
+	save_matrix(ray.pos,ray.pos+ray.dir);
+    glUseProgram(box_shader);
+    set_shadowuniform(box_shader);
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_2D,1);
+    set_viewvolume(eye,dir,45.0);
+    //set_viewvolume(ray.pos,ray.dir,45.0);
+}
+
 void render_scene()
 {
-	display_scene();
+    //set_lights(GL_LIGHT0, ray.pos, ray.color, ray.dir, ray.exp, ray.cutoff);
+    draw_box();
+    //draw_floor();
+    glUseProgram(teapot_shader);
+	draw_teapot();
+	draw_light();
+	glutSwapBuffers();
 }
 
 
 void do_render()
 {
-	set_viewvolume();
 	set_scene_ambient();
 
 	if (ray_num == 0)
 	{
-		set_lights(GL_LIGHT0, glm::vec3(0.5, LENGTH - 0.02f, 0.5), glm::vec3(1.0, 1.0, 1.0), glm::vec3(0.0, -1.0, 0.0), 20.0, 180.0);
+        Ray main_ray;
+        main_ray.pos = glm::vec3(1.0, LENGTH - 0.02f, 1.0);
+        //main_ray.pos = glm::vec3(0.836825, 1.98, 1.09011);
+        main_ray.color = glm::vec3(1.0, 1.0, 1.0);
+        //main_ray.dir = glm::vec3(0.01, -1.0, 0.01);
+        main_ray.dir = glm::normalize(glm::vec3(1.0, -0.192593, -0.790025));
+        main_ray.exp = 0.1;
+        main_ray.cutoff = 180.0;
+        do_shadow_map(main_ray);
+        set_lights(GL_LIGHT0, main_ray.pos, main_ray.color, main_ray.dir, main_ray.exp, main_ray.cutoff);
 		render_scene();
 		return;
 	}
@@ -210,7 +316,7 @@ void do_render()
 		Ray light_ray;
 		Ray ray;
 		bool find = false;
-		do 
+		do
 		{
 			// pick a random light
 			// cout << "pick ray..." << endl;
@@ -219,16 +325,13 @@ void do_render()
 			r++;
 		} while (!find);
 
-		/*		
+
 		cout << "main light ray: " << endl;
 		cout << "\t | pos: " << light_ray.pos.x << " " << light_ray.pos.y << " " << light_ray.pos.z << endl;
 		cout << "\t | dir: " << light_ray.dir.x << " " << light_ray.dir.y << " " << light_ray.dir.z << endl;
-		cout << "reflect ray: " << endl;
-		cout << "\t | pos: " << ray.pos.x << " " << ray.pos.y << " " << ray.pos.z << endl;
-		cout << "\t | dir: " << ray.dir.x << " " << ray.dir.y << " " << ray.dir.z << endl;
-		*/
 
 		// set main light
+		do_shadow_map(light_ray);
 		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color / float(reflect_num), light_ray.dir, light_ray.exp, light_ray.cutoff);
 		// set vlp
 		// note: large falloff if surface is shiny, make it spotlight
@@ -239,6 +342,7 @@ void do_render()
 			// cout << "reflect ray..." << endl;
 			// set light for current_ray
 			att *= reflect_att;
+
 			set_lights(GL_LIGHT1, current_ray.pos, att * current_ray.color, current_ray.dir, current_ray.exp, current_ray.cutoff);
 			// render the scene
 			render_scene();
@@ -264,7 +368,7 @@ void do_render()
 void initGL(int argc, char **argv)
 {
 	glutInit(&argc,argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE | GLUT_ACCUM);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE | GLUT_ACCUM);
 	glutInitWindowSize(WIN_X, WIN_Y);
 	glutInitWindowPosition(100, 50);
 	glutCreateWindow("teapot_cornell_box");
@@ -280,7 +384,8 @@ void pre_load()
 	// load models
 	load_box();	// load box
 	load_light();	// load light in cornell box
-	generateBoxTri();	// get triangles for the box
+	generateBoxTri();
+	load_obj("/home/xiaotoz/Documents/605/project3/cg/teapot/teapot.obj");	// get triangles for the box
 }
 
 
@@ -291,6 +396,10 @@ int main(int argc, char **argv)
 	reflect_num = atoi(argv[2]);
 	initGL(argc, argv);
 	pre_load();
+	build_shadowmap();
+	box_shader = set_shaders(0);
+	light_shader = set_shaders(1);
+	teapot_shader = set_shaders(2);
 	glutDisplayFunc(do_render);
 	glutMainLoop();
 

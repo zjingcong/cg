@@ -1,18 +1,13 @@
 // These are set by the .vert code, and they're interpolated.
 varying vec3 ec_vnormal, ec_vposition;
-uniform sampler2D myshadow;
-varying vec4 tcoords;
 
 # define PI 3.14159265
 
 // calculate the color when using a spot light
 vec4 CalSpotLight(int i)
 {
-	vec4 ambientColor, diffuseColor, specColor, tcolor, pccoords;
+	vec4 ambientColor, diffuseColor, specColor;
 	vec3 P, N, L, V, H;
-    float depthsample;
-    vec4 clarity = vec4(1.0,1.0,1.0,0.0);
-	// vec4 box_spec = vec4(1.0, 1.0, 1.0, 1.0);
 
 	P = ec_vposition;
 	N = normalize(ec_vnormal);
@@ -20,14 +15,6 @@ vec4 CalSpotLight(int i)
 	L = normalize(gl_LightSource[i].position - P);
 	H = normalize(L + V);	// halfway between L and V
 
-    pccoords = tcoords/tcoords.w ;
-    //depthsample = texture2D(myshadow,pccoords.st);
-    //if(depthsample < pccoords.z && pccoords.x >= 0 && pccoords.x <= 1.0 && pccoords.y >= 0 && pccoords.y <= 1.0) clarity = vec4(0.3,0.3,0.3,0.0);
-    if(pccoords.x >= 0 && pccoords.x <= 1.0 && pccoords.y >= 0 && pccoords.y <= 1.0 && pccoords.z >=0 && pccoords.z <= 1.0)
-    {
-        depthsample = texture2D(myshadow,pccoords.st);
-        if(depthsample < pccoords.z)clarity = vec4(0.0,0.0,0.0,0.0);
-    }
 
 	// diffuse shading
 	float diff = max(dot(N, L), 0.0);
@@ -59,7 +46,7 @@ vec4 CalSpotLight(int i)
 	diffuseColor *= (attenuation * spot);
 	specColor *= (attenuation * spot);
 
-	return (ambientColor + diffuseColor + specColor)*clarity;
+	return (ambientColor + diffuseColor + specColor);
 }
 
 

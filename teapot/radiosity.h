@@ -126,8 +126,8 @@ Ray pick_ray(int i)
 	ray.pos = light_pos;
 	ray.dir = light_dir;
 	ray.color = white;	// light color: white
-	ray.exp = 0.1;	// light falloff
-	ray.cutoff = 180;
+	ray.exp = 2.0;	// light falloff
+	ray.cutoff = 30;
 
 	return ray;
 }
@@ -139,7 +139,7 @@ Ray pick_ray(int i)
 // ray direction: dir
 // intersection point: P P = origin + t * dir = (1 - u - v) * V0 + u * V1 + v * V2 (the same)
 // triangle unit length normal: N
-bool MTintersection(Triangle tri, 
+bool MTintersection(Triangle tri,
                     glm::vec3 origin, glm::vec3 dir, glm::vec3 &P, glm::vec3 &N)
 {
 	float kEpsilon = 0.000001f;
@@ -216,7 +216,7 @@ bool find_intersection(Ray current_ray, Ray &new_ray)
 	new_ray.dir = R;
 	new_ray.color = color;
 	new_ray.exp = falloff;
-	new_ray.cutoff = 180.0;	// make vlp spotlight here
+	new_ray.cutoff = 60.0;	// make vlp spotlight here
 
 	return true;
 }
