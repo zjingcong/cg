@@ -33,6 +33,7 @@ glm::vec3 eye(1.0, 1.0, 3.92);
 glm::vec3 dir(0.0, 0.0, -1.0);
 
 
+
 using namespace std;
 
 
@@ -127,12 +128,37 @@ void set_scene_ambient()
 	float scene_ambient[] = {0.0, 0.0, 0.0, 0.0};
 	// set scene default ambient
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, scene_ambient);
+
+		// fill light
+	GLuint gl_light_id = GL_LIGHT7;
+    glm::vec3 pos(LENGTH / 2.0, -20, LENGTH / 2.0);
+    glm::vec3 dir(0.0, 1.0, 0.0);
+    float exp = 0.1;
+    float cutoff = 180.0;
+
+	float light_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
+	float light_diffuse[] = { 0.05, 0.05, 0.05, 0.0 };
+	float light_specular[] = { 0.0, 0.0, 0.0, 0.0 };
+	float light_position[] = { pos.x, pos.y, pos.z, 1.0 };
+	float light_direction[] = { dir.x, dir.y, dir.z, 1.0};
+
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,1);
+	glLightfv(gl_light_id, GL_AMBIENT, light_ambient);
+	glLightfv(gl_light_id, GL_DIFFUSE, light_diffuse);
+	glLightfv(gl_light_id, GL_SPECULAR, light_specular);
+	glLightf(gl_light_id, GL_SPOT_EXPONENT, exp);
+	glLightf(gl_light_id, GL_SPOT_CUTOFF, cutoff);
+	glLightfv(gl_light_id, GL_POSITION, light_position);
+	glLightfv(gl_light_id, GL_SPOT_DIRECTION, light_direction);
+	glEnable(GL_LIGHTING);
+	glEnable(gl_light_id);
+
 }
 
 
 void set_lights(unsigned int gl_light_id, glm::vec3 pos, glm::vec3 color, glm::vec3 dir, float exp, float cutoff)
 {
-	float light_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
+	float light_ambient[] = { 0.005, 0.005, 0.005, 0.005 };
 	float light_diffuse[] = { color.x, color.y, color.z, 0.0 };
 	float light_specular[] = { 1.0, 1.0, 1.0, 0.0 };
 	float light_position[] = { pos.x, pos.y, pos.z, 1.0 };
@@ -166,9 +192,9 @@ void set_material(int id)
 		case 1:
 		{
             float mat_ambient[] = {0.021500, 0.174500, 0.021500, 0.550000};
-            float mat_diffuse[] = {0.075680, 0.614240, 0.075680, 0.550000};
-            float mat_specular[] = {0.633000, 0.727811, 0.633000, 0.550000};
-            float mat_shininess[] = {76.800003};
+            float mat_diffuse[] = {1.675680, 1.614240, 1.675680, 1.850000};
+            float mat_specular[] = {0.133000, 0.227811, 0.133000, 0.050000};
+            float mat_shininess[] = {6.800003};
 
             glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,mat_ambient);
             glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,mat_diffuse);
@@ -205,9 +231,9 @@ void draw_teapot(){
     glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), teapot_normals);
 
     glPushMatrix();
-    glTranslatef(1.0,0.0,1.0);
+    glTranslatef(1.0, 0.0, 1.0);
     glScalef(0.4,0.4,0.4);
-    glRotatef(-120,0.0,1.0,0.0);
+    glRotatef(-120, 0.0, 1.0, 0.0);
     glDrawElements(GL_QUADS, 4 * teapot_face_count, GL_UNSIGNED_INT, teapot_faces);
     glPopMatrix();
     glFlush();
@@ -250,29 +276,32 @@ void save_matrix(glm::vec3 eye, glm::vec3 view)
     glScalef(0.5,0.5,0.5);
     glTranslatef(1.0,1.0,1.0);
     //gluPerspective(45.0,(float)(WINDOW_WIDTH)/(float)(WINDOW_HEIGHT),0.1,20.0);
-    gluPerspective(120.0,(float)(WINDOW_WIDTH)/(float)(WINDOW_HEIGHT),0.1,20.0);
+    gluPerspective(60.0,(float)(WINDOW_WIDTH)/(float)(WINDOW_HEIGHT),0.1,20.0);
     gluLookAt(eye.x,eye.y,eye.z,view.x,view.y,view.z,0.0,1.0,0.0);
 }
 
 // add shadow render here
 void do_shadow_map(Ray ray)
 {
+    float distance = 2.8;
+    glm::vec3 c_eye = ray.pos - distance * ray.dir;
+
     glBindFramebufferEXT(GL_FRAMEBUFFER,1);
     glUseProgram(0);
 
-    set_viewvolume(ray.pos,ray.dir,120.0);
+    set_viewvolume(c_eye,ray.dir,60.0);
     //set_lights(GL_LIGHT0, ray.pos, ray.color, ray.dir, ray.exp, ray.cutoff);
-	//draw_box();
+	// draw_box();
 	draw_floor();
 	draw_teapot();
 	glBindFramebufferEXT(GL_FRAMEBUFFER,0);
-	save_matrix(ray.pos,ray.pos+ray.dir);
+	save_matrix(c_eye,ray.pos+ray.dir);
     glUseProgram(box_shader);
     set_shadowuniform(box_shader);
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D,1);
     set_viewvolume(eye,dir,45.0);
-    //set_viewvolume(ray.pos,ray.dir,45.0);
+    // set_viewvolume(ray.pos,ray.dir,45.0);
 }
 
 void render_scene()
@@ -298,8 +327,8 @@ void do_render()
         main_ray.pos = glm::vec3(1.0, LENGTH - 0.02f, 1.0);
         //main_ray.pos = glm::vec3(0.836825, 1.98, 1.09011);
         main_ray.color = glm::vec3(1.0, 1.0, 1.0);
-        //main_ray.dir = glm::vec3(0.01, -1.0, 0.01);
-        main_ray.dir = glm::normalize(glm::vec3(1.0, -0.192593, -0.790025));
+        main_ray.dir = glm::vec3(0.0, -1.0, 0.00001);
+        // main_ray.dir = glm::normalize(glm::vec3(1.0, -0.192593, -0.790025));
         main_ray.exp = 0.1;
         main_ray.cutoff = 180.0;
         do_shadow_map(main_ray);
