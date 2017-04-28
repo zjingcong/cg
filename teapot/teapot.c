@@ -230,21 +230,24 @@ void draw_box()
 }
 
 
-void draw_teapot()
-{
+void draw_teapot(){
 	// draw teapot
 	set_material(1);
-  glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
-  glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), teapot_vertices);
-  glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), teapot_normals);
+    glTexCoordPointer(2, GL_FLOAT, 2 * sizeof(GLfloat), teapot_texcoords);
+    glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), teapot_vertices);
+    glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), teapot_normals);
 
-  glPushMatrix();
-  glRotatef(-120, 0.0, 1.0, 0.0);
-  glDrawElements(GL_QUADS, 4 * teapot_face_count, GL_UNSIGNED_INT, teapot_faces);
-  glPopMatrix();
-}
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,2);
+    glPushMatrix();
+    glRotatef(-120, 0.0, 1.0, 0.0);
+    glDrawElements(GL_QUADS, 4 * teapot_face_count, GL_UNSIGNED_INT, teapot_faces);
+    glPopMatrix();
+    }
 
 
 void draw_floor()
@@ -316,6 +319,7 @@ void render_scene()
 	glUseProgram(box_shader);
   draw_box();
   glUseProgram(teapot_shader);
+  set_uniform(teapot_shader);
 	draw_teapot();
 	draw_light();
 }
@@ -395,6 +399,7 @@ void pre_load()
 	load_box();	// load box
 	load_light();	// load light in cornell box
 	load_obj("teapot.obj");	// get triangles for the box
+	load_texture("floor.ppm");
 	// generate triangles from quads for intersection finding
 	generateBoxTri();	// generate box triangles
 	generateTeapotTri();	// generate teapot triangles

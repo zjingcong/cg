@@ -1,12 +1,14 @@
 // These are set by the .vert code, and they're interpolated.
 varying vec3 ec_vnormal, ec_vposition;
 
+uniform sampler2D mytexture;
+
 # define PI 3.14159265
 
 // calculate the color when using a spot light
 vec4 CalSpotLight(int i)
 {
-	vec4 ambientColor, diffuseColor, specColor;
+	vec4 ambientColor, diffuseColor, specColor, tcolor;
 	vec3 P, N, L, V, H;
 
 	P = ec_vposition;
@@ -15,7 +17,7 @@ vec4 CalSpotLight(int i)
 	L = normalize(gl_LightSource[i].position - P);
 	H = normalize(L + V);	// halfway between L and V
 
-
+    tcolor = texture2D(mytexture,gl_TexCoord[0].st);
 	// diffuse shading
 	float diff = max(dot(N, L), 0.0);
 	// specular shading
@@ -40,7 +42,7 @@ vec4 CalSpotLight(int i)
 
 	// calculate color
 	ambientColor = gl_LightSource[i].ambient * gl_FrontMaterial.ambient;
-	diffuseColor = gl_LightSource[i].diffuse * gl_FrontMaterial.diffuse * diff;
+	diffuseColor = gl_LightSource[i].diffuse * (0.1*gl_FrontMaterial.diffuse+0.9*tcolor) * diff;
 	specColor = gl_LightSource[i].specular * gl_FrontMaterial.specular * spec;
 	diffuseColor *= (attenuation * spot);
 	specColor *= (attenuation * spot);
@@ -62,4 +64,3 @@ void main()
 	fragColor += CalSpotLight(7);
 	gl_FragColor = fragColor;
 }
-
