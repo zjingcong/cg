@@ -134,6 +134,7 @@ void set_viewvolume(glm::vec3 eye, glm::vec3 dir, GLfloat fov)
 
 void set_scene_ambient()
 {
+	// turn off the scene ambient
 	float scene_ambient[] = {0.0, 0.0, 0.0, 0.0};
 	// set scene default ambient
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, scene_ambient);
@@ -200,16 +201,16 @@ void set_material(int id)
 		// teapot meterial
 		case 1:
 		{
-            float mat_ambient[] = {0.021500, 0.174500, 0.021500, 0.550000};
-            float mat_diffuse[] = {1.675680, 1.614240, 1.675680, 1.850000};
-            float mat_specular[] = {0.133000, 0.227811, 0.133000, 0.050000};
-            float mat_shininess[] = {6.800003};
+			float mat_ambient[] = {0.021500, 0.174500, 0.021500, 0.550000};
+			float mat_diffuse[] = {1.675680, 1.614240, 1.675680, 1.850000};
+			float mat_specular[] = {0.133000, 0.227811, 0.133000, 0.050000};
+			float mat_shininess[] = {6.800003};
 
-            glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,mat_ambient);
-            glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,mat_diffuse);
-            glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,mat_specular);
-            glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,mat_shininess);
-            break;
+			glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,mat_ambient);
+			glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,mat_diffuse);
+			glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,mat_specular);
+			glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,mat_shininess);
+			break;
 		}
 	}
 }
@@ -221,8 +222,6 @@ void draw_box()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
-	// draw box
-	//set_shaders(0);
 	set_material(0);
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_vertices);
 	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), box_normals);
@@ -235,17 +234,17 @@ void draw_teapot()
 {
 	// draw teapot
 	set_material(1);
-    glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), teapot_vertices);
-    glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), teapot_normals);
+  glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), teapot_vertices);
+  glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), teapot_normals);
 
-    glPushMatrix();
-    glRotatef(-120, 0.0, 1.0, 0.0);
-    glDrawElements(GL_QUADS, 4 * teapot_face_count, GL_UNSIGNED_INT, teapot_faces);
-    glPopMatrix();
-    glFlush();
+  glPushMatrix();
+  glRotatef(-120, 0.0, 1.0, 0.0);
+  glDrawElements(GL_QUADS, 4 * teapot_face_count, GL_UNSIGNED_INT, teapot_faces);
+  glPopMatrix();
+  glFlush();
 }
 
 
@@ -296,33 +295,30 @@ void save_matrix(glm::vec3 eye, glm::vec3 view)
 // add shadow render here
 void do_shadow_map(Ray ray)
 {
-    float distance = 7.0;
-    glm::vec3 c_eye = ray.pos - distance * ray.dir;
+  float distance = 7.0;
+  glm::vec3 c_eye = ray.pos - distance * ray.dir;
 
-    glBindFramebufferEXT(GL_FRAMEBUFFER,1);
-    glUseProgram(0);
+  glBindFramebufferEXT(GL_FRAMEBUFFER,1);
+  glUseProgram(0);
 
-    set_viewvolume(c_eye,ray.dir,60.0);
-	// draw_box();
+  set_viewvolume(c_eye,ray.dir,60.0);
 	draw_floor();
 	draw_teapot();
 	glBindFramebufferEXT(GL_FRAMEBUFFER,0);
 	save_matrix(c_eye,ray.pos+ray.dir);
-    glUseProgram(box_shader);
-    set_shadowuniform(box_shader);
-    glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D,1);
-    set_viewvolume(eye,dir,45.0);
+  glUseProgram(box_shader);
+  set_shadowuniform(box_shader);
+  glActiveTexture(GL_TEXTURE6);
+  glBindTexture(GL_TEXTURE_2D,1);
+  set_viewvolume(eye,dir,45.0);
 }
 
 void render_scene()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(box_shader);
-    //set_lights(GL_LIGHT0, ray.pos, ray.color, ray.dir, ray.exp, ray.cutoff);
-    draw_box();
-    //draw_floor();
-    glUseProgram(teapot_shader);
+  draw_box();
+  glUseProgram(teapot_shader);
 	draw_teapot();
 	draw_light();
 	glutSwapBuffers();
@@ -333,35 +329,17 @@ void do_render()
 {
 	set_scene_ambient();
 
-	if (ray_num == 0)
-	{
-        Ray main_ray;
-        main_ray.pos = glm::vec3(0.0, 2.0f * LENGTH - 0.02f, 0.0);
-        //main_ray.pos = glm::vec3(0.836825, 1.98, 1.09011);
-        main_ray.color = glm::vec3(1.0, 1.0, 1.0);
-        main_ray.dir = glm::vec3(0.0, -1.0, 0.00001);
-        // main_ray.dir = glm::normalize(glm::vec3(1.0, -0.192593, -0.790025));
-        main_ray.exp = 0.1;
-        main_ray.cutoff = 180.0;
-        do_shadow_map(main_ray);
-        set_lights(GL_LIGHT0, main_ray.pos, main_ray.color, main_ray.dir, main_ray.exp, main_ray.cutoff);
-		render_scene();
-		return;
-	}
-
 	glClear(GL_ACCUM_BUFFER_BIT);
 	int r = 0;
 	for (int i = 0; i < ray_num; ++i)
 	{
 		// select random ray and find intersection, if no intersection: try new random ray
-		cout << "ray id: " << i << endl;
 		Ray light_ray;
 		Ray ray;
 		bool find = false;
 		do
 		{
 			// pick a random light
-			// cout << "pick ray..." << endl;
 			light_ray = pick_ray(r);
 			find = find_intersection(light_ray, ray);
 			r++;
@@ -369,21 +347,20 @@ void do_render()
 
 		// set main light
 		do_shadow_map(light_ray);
-		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color / float(reflect_num), light_ray.dir, light_ray.exp, light_ray.cutoff);
+		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color/* / float(reflect_num)*/, light_ray.dir, light_ray.exp, light_ray.cutoff);
 		// set vlp
 		// note: large falloff if surface is shiny, make it spotlight
 		Ray current_ray = ray;
 		float att = 1.0;
 		for (int i = 1; i <= reflect_num; ++i)
 		{
-			// cout << "reflect ray..." << endl;
 			// set light for current_ray
 			att *= reflect_att;
 
 			if (!HIT_TEAPOT)	{set_lights(GL_LIGHT1, current_ray.pos, att * current_ray.color, current_ray.dir, current_ray.exp, current_ray.cutoff);}
 			// render the scene
 			render_scene();
-			glAccum(GL_ACCUM, 1.0f / (ray_num));
+			glAccum(GL_ACCUM, 1.0f / (ray_num * 2));
 
 			// set the next ray
 			Ray new_ray;
@@ -396,7 +373,6 @@ void do_render()
 			current_ray = new_ray;
 		}
 		end_loop: ;
-		// cout << "------------------------------------------" << endl;
 	}
 	glAccum(GL_RETURN, 1.0);
 	glutSwapBuffers();

@@ -36,6 +36,9 @@ typedef struct
 vector<Triangle> box_triangle_list;
 vector<Triangle> teapot_triangle_list;
 float box_falloff = 20.0;	// spotlight falloff for vlp on box
+float box_cutoff = 60.0;	// spotlight cutoff for vlp on box
+float main_falloff = 20.0;	// mainlight falloff
+float main_cutoff = 90.0;	// mainlight cutoff
 bool HIT_TEAPOT = false;
 
 
@@ -168,8 +171,8 @@ Ray pick_ray(int i)
 	ray.pos = light_pos;
 	ray.dir = light_dir;
 	ray.color = white;	// light color: white
-	ray.exp = 2.0;	// light falloff
-	ray.cutoff = 180.0;
+	ray.exp = main_falloff;	// light falloff
+	ray.cutoff = main_cutoff;	// light cutoff
 
 	return ray;
 }
@@ -199,24 +202,23 @@ bool MTintersection(Triangle tri,
 	{
 		e1 = -e1;
 		e2 = -e2;
-		// cout << "inverse" << endl;
 	}
 
 	pvec = glm::cross(dir, e2);
 	det = glm::dot(e1, pvec);
 
 	// back-facing triangles or ray misses the triangle
-	if (det < kEpsilon)	{/*cout << "backface" << endl;*/ return false;}
+	if (det < kEpsilon)	{return false;}
 	// ray and triangle are parallel
-	if (fabs(det) < kEpsilon)	{/*cout << "parallel" << endl;*/ return false;}
+	if (fabs(det) < kEpsilon)	{return false;}
 
 	inv_det = 1.0f / det;
 	tvec = origin - tri.V0;
 	u = glm::dot(tvec, pvec) * inv_det;
-	if (u < 0 || u > 1)	{/*cout << "u fail" << endl;*/ return false;}
+	if (u < 0 || u > 1)	{return false;}
 	qvec = glm::cross(tvec, e1);
 	v = glm::dot(dir, qvec) * inv_det;
-	if (v < 0 || u + v > 1)	{/*cout << "v fail" << endl;*/ return false;}
+	if (v < 0 || u + v > 1)	{return false;}
 	t = glm::dot(e2, qvec) * inv_det;
 
 	P = origin + t * dir;
@@ -237,6 +239,7 @@ bool find_intersection(Ray current_ray, Ray &new_ray)
 	bool find_intersection = false;
 
 	HIT_TEAPOT = false;
+
 	// find intersection with teapot
 	for (vector<Triangle>::iterator it = teapot_triangle_list.begin(); it != teapot_triangle_list.end(); ++it)
 	{
@@ -263,7 +266,7 @@ bool find_intersection(Ray current_ray, Ray &new_ray)
 		}
 	}
 	end_box_loop: ;
-	if (!find_intersection)	{ /*cout << "No intersection" << endl;*/	return false;}
+	if (!find_intersection)	{ return false;}
 
 	glm::vec3 V = -dir;
 	glm::vec3 R = -V + 2 * glm::dot(V, N) * N;
@@ -273,7 +276,7 @@ bool find_intersection(Ray current_ray, Ray &new_ray)
 	new_ray.dir = R;
 	new_ray.color = color;
 	new_ray.exp = falloff;
-	new_ray.cutoff = 60.0;	// make vlp spotlight here
+	new_ray.cutoff = box_cutoff;	// make vlp spotlight here
 
 	return true;
 }
