@@ -102,7 +102,6 @@ unsigned int set_shaders(int id)
 	glAttachShader(p,f);
 	glAttachShader(p,v);
 	glLinkProgram(p);
-	glUseProgram(p);
 
 	return p;
 }
@@ -228,10 +227,12 @@ void draw_box()
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_vertices);
 	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), box_normals);
 	glColorPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), box_colors);
-	glDrawElements(GL_QUADS, box_face_num * 4, GL_UNSIGNED_INT, box_faces);
+	glDrawElements(GL_QUADS, 5 * 4, GL_UNSIGNED_INT, box_faces);	// five face(no front face)
 }
 
-void draw_teapot(){
+
+void draw_teapot()
+{
 	// draw teapot
 	set_material(1);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -245,25 +246,26 @@ void draw_teapot(){
     glDrawElements(GL_QUADS, 4 * teapot_face_count, GL_UNSIGNED_INT, teapot_faces);
     glPopMatrix();
     glFlush();
-    }
+}
 
-void draw_floor(){
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    set_material(0);
-    glBegin(GL_QUADS);
-    glNormal3f(0.0,2.0,0.0);
+
+void draw_floor()
+{
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  set_material(0);
+  glBegin(GL_QUADS);
+  glNormal3f(0.0,2.0,0.0);
 	glVertex3f(2.0,0.0,0.0);
 	glVertex3f(2.0,0.0,2.0);
 	glVertex3f(0.0,0.0,2.0);
 	glVertex3f(0.0,0.0,0.0);
 	glEnd();
-    glFlush();
-
+  glFlush();
 }
 
 
-
-void draw_light(){
+void draw_light()
+{
 	// draw light
 	glEnableClientState(GL_COLOR_ARRAY);
 	glUseProgram(light_shader);
@@ -277,6 +279,7 @@ void draw_light(){
 	glFlush();
 }
 
+
 void save_matrix(glm::vec3 eye, glm::vec3 view)
 {
     glMatrixMode(GL_TEXTURE);
@@ -286,7 +289,6 @@ void save_matrix(glm::vec3 eye, glm::vec3 view)
     glTranslatef(0.0,0.0,-0.00005);
     glScalef(0.5,0.5,0.5);
     glTranslatef(1.0,1.0,1.0);
-    //gluPerspective(45.0,(float)(WINDOW_WIDTH)/(float)(WINDOW_HEIGHT),0.1,20.0);
     gluPerspective(60.0,(float)(WINDOW_WIDTH)/(float)(WINDOW_HEIGHT),0.1,20.0);
     gluLookAt(eye.x,eye.y,eye.z,view.x,view.y,view.z,0.0,1.0,0.0);
 }
@@ -301,7 +303,6 @@ void do_shadow_map(Ray ray)
     glUseProgram(0);
 
     set_viewvolume(c_eye,ray.dir,60.0);
-    //set_lights(GL_LIGHT0, ray.pos, ray.color, ray.dir, ray.exp, ray.cutoff);
 	// draw_box();
 	draw_floor();
 	draw_teapot();
@@ -312,11 +313,11 @@ void do_shadow_map(Ray ray)
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D,1);
     set_viewvolume(eye,dir,45.0);
-    // set_viewvolume(ray.pos,ray.dir,45.0);
 }
 
 void render_scene()
 {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(box_shader);
     //set_lights(GL_LIGHT0, ray.pos, ray.color, ray.dir, ray.exp, ray.cutoff);
     draw_box();

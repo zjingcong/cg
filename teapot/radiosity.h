@@ -41,7 +41,7 @@ bool HIT_TEAPOT = false;
 
 void generateBoxTri()
 {
-	int face_num = box_face_num;
+	int face_num = box_face_num + 1;	// add front
 	glm::vec3 point_list[face_num * 4], normal_list[face_num * 4], color_list[face_num * 4];
 	// get all the point
 	for (int i = 0; i < face_num * 4; ++i)

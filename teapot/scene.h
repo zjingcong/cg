@@ -20,7 +20,7 @@ GLfloat *box_vertices;
 GLfloat *box_normals;
 GLuint *box_faces;
 GLfloat *box_colors;
-int box_face_num = 5;
+int box_face_num = 6;
 
 GLfloat *light_vertices;
 GLfloat *light_normals;
@@ -144,8 +144,12 @@ void load_box()
 		LENGTH, 2.0f * LENGTH, -LENGTH, 
 		-LENGTH, 2.0f * LENGTH, -LENGTH, 
 		-LENGTH, 0.0, -LENGTH, 
-		LENGTH, 0.0, -LENGTH
-		// front: for test
+		LENGTH, 0.0, -LENGTH, 
+		// front
+		-LENGTH, 2.0f * LENGTH, LENGTH, 
+		LENGTH, 2.0f * LENGTH, LENGTH, 
+		LENGTH, 0.0, LENGTH, 
+		-LENGTH, 0.0, LENGTH
 
 	};
 
