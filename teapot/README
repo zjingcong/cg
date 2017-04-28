@@ -1,0 +1,21 @@
+
+605 Project3 Instruction
+========================
+Jingcong Zhang
+Xiaotong Zhong
+Heng Zhou
+
+Compile: use Makefile
+
+Usage:
+	./teapot ray_num reflect_num
+		ray_num: the number of rays for instant radiosity
+		reflect_num: the number of reflections
+	
+	suggestions parms:
+		ray_num = 800
+		reflect_num = 3
+
+
+In this project, we put a teapot with texture in a cornell box with a top light. We use instant radiosity for global illumination, add shadow map and use accumulation buffer for anti-aliasing. And we use normalized blinn-phong for the box and teapot shader.
+
