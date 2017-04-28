@@ -147,7 +147,7 @@ void set_scene_ambient()
     float cutoff = 180.0;
 
 	float light_ambient[] = { 0.0, 0.0, 0.0, 0.0 };
-	float light_diffuse[] = { 0.08, 0.08, 0.08, 0.0 };
+	float light_diffuse[] = { 0.47, 0.47, 0.47, 0.0 };
 	float light_specular[] = { 0.0, 0.0, 0.0, 0.0 };
 	float light_position[] = { pos.x, pos.y, pos.z, 1.0 };
 	float light_direction[] = { dir.x, dir.y, dir.z, 1.0};
@@ -194,17 +194,17 @@ void set_material(int id)
 		// box material
 		case 0:
 		{
-			float mat_shininess[] = {4};
+			float mat_shininess[] = {10};
 			glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 			break;
 		}
 		// teapot meterial
 		case 1:
 		{
-			float mat_ambient[] = {0.021500, 0.174500, 0.021500, 0.550000};
-			float mat_diffuse[] = {1.675680, 1.614240, 1.675680, 1.850000};
-			float mat_specular[] = {0.133000, 0.227811, 0.133000, 0.050000};
-			float mat_shininess[] = {6.800003};
+			float mat_ambient[] = {0.105882, 0.058824, 0.113725, 1.000000};
+			float mat_diffuse[] = {0.427451, 0.470588, 0.541176, 1.000000};
+			float mat_specular[] = {0.666666, 0.666666, 0.921569, 1.000000};
+			float mat_shininess[] = {29.846150};
 
 			glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,mat_ambient);
 			glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,mat_diffuse);
@@ -347,7 +347,7 @@ void do_render()
 
 		// set main light
 		do_shadow_map(light_ray);
-		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color/* / float(reflect_num)*/, light_ray.dir, light_ray.exp, light_ray.cutoff);
+		set_lights(GL_LIGHT0, light_ray.pos, light_ray.color, light_ray.dir, light_ray.exp, light_ray.cutoff);
 		// set vlp
 		// note: large falloff if surface is shiny, make it spotlight
 		Ray current_ray = ray;
@@ -360,7 +360,7 @@ void do_render()
 			if (!HIT_TEAPOT)	{set_lights(GL_LIGHT1, current_ray.pos, att * current_ray.color, current_ray.dir, current_ray.exp, current_ray.cutoff);}
 			// render the scene
 			render_scene();
-			glAccum(GL_ACCUM, 1.0f / (ray_num * 2));
+			glAccum(GL_ACCUM, 1.0f / (ray_num));
 
 			// set the next ray
 			Ray new_ray;
@@ -399,7 +399,7 @@ void pre_load()
 	load_box();	// load box
 	load_light();	// load light in cornell box
 	load_obj("teapot.obj");	// get triangles for the box
-	load_texture("floor.ppm");
+	load_texture("texture.ppm");
 	// generate triangles from quads for intersection finding
 	generateBoxTri();	// generate box triangles
 	generateTeapotTri();	// generate teapot triangles

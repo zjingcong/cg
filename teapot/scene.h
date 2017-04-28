@@ -20,7 +20,7 @@ GLfloat *box_vertices;
 GLfloat *box_normals;
 GLuint *box_faces;
 GLfloat *box_colors;
-int box_face_num = 5;
+int box_face_num = 6;
 
 GLfloat *light_vertices;
 GLfloat *light_normals;
@@ -214,39 +214,40 @@ void load_box()
 		0.0, 0.0, -1.0,
 	};
 
+	float dx = 1.2;
 	GLfloat colors[] =
 	{
 		// left: red
-		1.0, 0.0, 0.0,
-		1.0, 0.0, 0.0,
-		1.0, 0.0, 0.0,
-		1.0, 0.0, 0.0,
+		dx, 0.0, 0.0,
+		dx, 0.0, 0.0,
+		dx, 0.0, 0.0,
+		dx, 0.0, 0.0,
 		// right: green
-		0.0, 1.0, 0.0,
-		0.0, 1.0, 0.0,
-		0.0, 1.0, 0.0,
-		0.0, 1.0, 0.0,
+		0.0, dx, 0.0,
+		0.0, dx, 0.0,
+		0.0, dx, 0.0,
+		0.0, dx, 0.0,
 		// others: white
 		// top
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
+		dx, dx, dx,
+		dx, dx, dx,
+		dx, dx, dx,
+		dx, dx, dx,
 		// bottom
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
+		dx, dx, dx,
+		dx, dx, dx,
+		dx, dx, dx,
+		dx, dx, dx,
 		// back
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
+		dx, dx, dx,
+		dx, dx, dx,
+		dx, dx, dx,
+		dx, dx, dx,
 		// front
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
+		dx, dx, dx,
+		dx, dx, dx,
+		dx, dx, dx,
+		dx, dx, dx,
 	};
 
 	box_vertices =  (GLfloat *)calloc(box_face_num * 4, 3 * sizeof(GLfloat));
@@ -283,13 +284,14 @@ void load_light()
 		0.0, -1.0, 0.0
 	};
 
+	float dc = 10.0;
 	GLfloat colors[] =
 	{
 		// white
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0
+		dc, dc, dc,
+		dc, dc, dc,
+		dc, dc, dc,
+		dc, dc, dc,
 	};
 
 	light_vertices =  (GLfloat *)calloc(4, 3 * sizeof(GLfloat));

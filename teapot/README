@@ -1,4 +1,7 @@
+<<<<<<< HEAD
+=======
 
+>>>>>>> 5bcfc20329f6e1c722849a13919a92802dac2506
 605 Project3 Instruction
 ========================
 Jingcong Zhang
@@ -18,4 +21,7 @@ Usage:
 
 
 In this project, we put a teapot with texture in a cornell box with a top light. We use instant radiosity for global illumination, add shadow map and use accumulation buffer for anti-aliasing. And we use normalized blinn-phong for the box and teapot shader.
+<<<<<<< HEAD
+=======
 
+>>>>>>> 5bcfc20329f6e1c722849a13919a92802dac2506
