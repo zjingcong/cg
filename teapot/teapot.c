@@ -22,6 +22,7 @@
 
 # define WIN_X 1280
 # define WIN_Y 1024
+# define JITTER 0.001
 
 
 int ray_num;
@@ -109,8 +110,17 @@ unsigned int set_shaders(int id)
 
 void set_viewvolume(glm::vec3 eye, glm::vec3 dir, GLfloat fov)
 {
-    glm::vec3 view = eye + dir;
-	glm::vec3 up(0.0, 1.0, 0.0);
+    glm::vec3 view, up, vdir, utemp, vtemp;
+
+    view = eye + dir;
+    view.x += JITTER*(drand48()*2-1); view.y += JITTER*(drand48()*2-1); view.z += JITTER*(drand48()*2-1);
+    up.x = 0.0; up.y = 1.0; up.z = 0.0;
+    vdir.x = view.x - eye.x; vdir.y = view.y - eye.y; vdir.z = view.z - eye.z;
+    // Calculate correct up vector as orthogonal to vdir and in the plane of
+    // vdir and (0,1,0).
+    vtemp = glm::cross(vdir,up);
+    utemp = glm::cross(vtemp,vdir);
+    up = glm::normalize(utemp);
 
 	// specify size and shape of view volume
 	glMatrixMode(GL_PROJECTION);
@@ -260,7 +270,10 @@ void draw_light(){
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), light_vertices);
 	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), light_normals);
 	glColorPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), light_colors);
+	glPushMatrix();
+	glTranslatef(JITTER*(drand48()*2-1)*50.0, 0.0 ,JITTER*(drand48()*2-1)*50.0);
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, light_faces);
+	glPopMatrix();
 	glFlush();
 }
 
