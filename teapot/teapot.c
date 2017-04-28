@@ -244,7 +244,6 @@ void draw_teapot()
   glRotatef(-120, 0.0, 1.0, 0.0);
   glDrawElements(GL_QUADS, 4 * teapot_face_count, GL_UNSIGNED_INT, teapot_faces);
   glPopMatrix();
-  glFlush();
 }
 
 
@@ -259,7 +258,6 @@ void draw_floor()
 	glVertex3f(0.0,0.0,2.0);
 	glVertex3f(0.0,0.0,0.0);
 	glEnd();
-  glFlush();
 }
 
 
@@ -275,7 +273,6 @@ void draw_light()
 	glTranslatef(JITTER*(drand48()*2-1)*50.0, 0.0 ,JITTER*(drand48()*2-1)*50.0);
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, light_faces);
 	glPopMatrix();
-	glFlush();
 }
 
 
@@ -321,7 +318,6 @@ void render_scene()
   glUseProgram(teapot_shader);
 	draw_teapot();
 	draw_light();
-	glutSwapBuffers();
 }
 
 
