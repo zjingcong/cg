@@ -4,7 +4,6 @@
 # include "math.h"
 
 # include "Vector.h"
-# include "Color.h"
 
 
 using namespace std;
@@ -27,7 +26,7 @@ Vector matDiff(0.6 * M_SQRT2, 0, 0);
 Vector litSpec(1, 1, 1);
 Vector litDiff(1, 1, 1);
 float shininess = 2.0;
-float falloff = 2.0;
+float falloff = 4.0;
 
 
 int main()
