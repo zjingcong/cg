@@ -18,4 +18,3 @@ Usage:
 
 
 In this project, we put a teapot with texture in a cornell box with a top light. We use instant radiosity for global illumination, add shadow map and use accumulation buffer for anti-aliasing. And we use normalized blinn-phong for the box and teapot shader.
-

@@ -36,9 +36,9 @@ typedef struct
 vector<Triangle> box_triangle_list;
 vector<Triangle> teapot_triangle_list;
 float box_falloff = 20.0;	// spotlight falloff for vlp on box
-float box_cutoff = 60.0;	// spotlight cutoff for vlp on box
+float box_cutoff = 55.0;	// spotlight cutoff for vlp on box
 float main_falloff = 20.0;	// mainlight falloff
-float main_cutoff = 90.0;	// mainlight cutoff
+float main_cutoff = 55.0;	// mainlight cutoff
 bool HIT_TEAPOT = false;
 
 
